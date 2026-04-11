@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import secrets; print\\(secrets.token_urlsafe\\(32\\)\\)\")",
+      "Bash(npx tsc:*)",
+      "Bash(node -e \"try { require.resolve\\('@radix-ui/react-slot'\\); console.log\\('installed'\\) } catch { console.log\\('missing'\\) }\")",
+      "Bash(python -c \"import certifi; print\\(certifi.where\\(\\)\\)\")",
+      "Bash(pip install:*)",
+      "Bash(\"C:\\\\Users\\\\navee\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" -m pip install certifi)",
+      "Bash('C:\\\\Users\\\\navee\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe' -c ':*)",
+      "Bash('C:\\\\Users\\\\navee\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python310\\\\python.exe' -c ':*)",
+      "Bash(where python:*)",
+      "Bash('C:/Program Files/Python310/python.exe' -c ':*)",
+      "Bash(npx vite:*)"
+    ]
+  }
+}

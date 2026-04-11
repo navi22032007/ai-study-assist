@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+motor
+pymongo
+python-multipart
+python-jose[cryptography]
+PyJWT
+pydantic
+pydantic-settings
+firebase-admin
+google-generativeai
+PyMuPDF
+python-dotenv
+slowapi
+httpx
+certifi
