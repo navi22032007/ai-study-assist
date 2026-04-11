@@ -8,6 +8,7 @@ export interface Document {
   file_type: string
   folder: string
   summary?: string
+  diagrams?: DiagramAnalysis[]
   key_points?: KeyPoint[]
   flashcards?: Flashcard[]
   mind_map?: MindMap
@@ -128,4 +129,19 @@ export interface AnalyticsDashboard {
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+}
+
+export interface DiagramQuizQuestion {
+  question: string
+  options: string[]
+  correct_answer: string
+}
+
+export interface DiagramAnalysis {
+  id: string
+  title: string
+  image_data: string
+  explanation: string
+  components: string[]
+  quiz_questions: DiagramQuizQuestion[]
 }

@@ -285,3 +285,38 @@ async def detect_weak_topics(quiz_results: List[dict]) -> List[str]:
                 weak.append(topic)
     
     return weak
+
+async def analyze_diagram(image_b64: str, mime_type: str) -> dict:
+    """Analyze a diagram/image using Gemini Vision multimodal capability."""
+    model = get_json_model()
+    prompt = """
+Analyze this educational image (diagram, chart, graph, map, table, or figure).
+Return a JSON object with this exact schema:
+{
+  "title": "A short, clear title describing the image",
+  "explanation": "A detailed plain-language explanation of what this image shows and teaches, like a tutor explaining it to a student",
+  "components": ["Key label 1", "Key label 2", "Important part 3"],
+  "quiz_questions": [
+    {
+      "question": "A question specifically about something visible in this diagram",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": "Option A"
+    },
+    {
+      "question": "Another question about the diagram",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": "Option B"
+    }
+  ]
+}
+Include exactly 2 quiz questions based ONLY on what can be visually deduced from the image.
+"""
+    
+    image_part = {
+        "mime_type": mime_type,
+        "data": image_b64
+    }
+    
+    response = model.generate_content([prompt, image_part])
+    data = safe_json_parse(response.text)
+    return data

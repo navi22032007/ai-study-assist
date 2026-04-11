@@ -52,6 +52,35 @@ async def upload_document(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
     
+    # ── AI Vision: Extract & analyze diagrams from PDFs ──────────────────
+    diagrams = []
+    if content_type == "application/pdf":
+        try:
+            from services.file_service import extract_images_from_pdf
+            from services import gemini_service
+            import asyncio
+            
+            images = extract_images_from_pdf(file_data)
+            print(f"[AI Vision] Extracted {len(images)} images from PDF")
+            
+            async def process_diagram(img):
+                try:
+                    result = await gemini_service.analyze_diagram(img["data"], img["mime_type"])
+                    result["image_data"] = f"data:{img['mime_type']};base64,{img['data']}"
+                    result["id"] = str(uuid.uuid4())
+                    result["page"] = img.get("page", 0)
+                    return result
+                except Exception as e:
+                    print(f"[AI Vision] Gemini analysis failed for page {img.get('page')}: {e}")
+                    return None
+            
+            tasks = [process_diagram(img) for img in images]
+            results = await asyncio.gather(*tasks)
+            diagrams = [r for r in results if r is not None]
+            print(f"[AI Vision] Successfully analyzed {len(diagrams)} diagrams")
+        except Exception as e:
+            print(f"[AI Vision] Diagram extraction pipeline failed: {e}")
+    
     now = datetime.now(timezone.utc)
     doc = {
         "user_id": user["uid"],
@@ -64,6 +93,7 @@ async def upload_document(
         "folder": folder,
         "document_text": document_text,
         "summary": None,
+        "diagrams": diagrams,
         "key_points": [],
         "flashcards": [],
         "mind_map": None,

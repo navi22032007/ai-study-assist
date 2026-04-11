@@ -122,3 +122,7 @@ export const getMyCertificates = () =>
 
 export const verifyPublicCertificate = (token: string) =>
   api.get(`/certificates/public/${token}`)
+
+// ── AI Vision ─────────────────────────────────────────
+export const analyzeDiagrams = (document_id: string) =>
+  api.post('/ai/analyze-diagrams', { document_id })

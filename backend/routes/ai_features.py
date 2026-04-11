@@ -185,3 +185,72 @@ async def generate_mind_map(body: MindMapRequest, request: Request):
         nodes=mind_map.get("nodes", []),
         edges=mind_map.get("edges", [])
     )
+
+@router.post("/analyze-diagrams")
+async def analyze_diagrams(body: SummaryRequest, request: Request):
+    """On-demand diagram analysis for existing documents."""
+    user = get_current_user(request)
+    db = get_db()
+    
+    try:
+        doc = await db.documents.find_one(
+            {"_id": ObjectId(body.document_id), "user_id": user["uid"]},
+            {"file_url": 1, "file_type": 1, "unique_filename": 1}
+        )
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid document ID")
+    
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    if doc.get("file_type") != "application/pdf":
+        raise HTTPException(status_code=422, detail="Only PDF documents can be scanned for diagrams")
+    
+    # Download the PDF from Firebase Storage
+    import httpx
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(doc["file_url"], timeout=30.0)
+            resp.raise_for_status()
+            file_data = resp.content
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to download PDF from storage: {str(e)}")
+    
+    # Extract images
+    from services.file_service import extract_images_from_pdf
+    import uuid
+    import asyncio
+    
+    images = extract_images_from_pdf(file_data)
+    
+    if not images:
+        # Update doc to have empty diagrams so frontend knows scan was done
+        await db.documents.update_one(
+            {"_id": ObjectId(body.document_id)},
+            {"$set": {"diagrams": [], "updated_at": datetime.now(timezone.utc)}}
+        )
+        return {"document_id": body.document_id, "diagrams": [], "message": "No visual content found in PDF"}
+    
+    # Analyze each image with Gemini Vision
+    async def process_one(img):
+        try:
+            result = await gemini_service.analyze_diagram(img["data"], img["mime_type"])
+            result["image_data"] = f"data:{img['mime_type']};base64,{img['data']}"
+            result["id"] = str(uuid.uuid4())
+            result["page"] = img.get("page", 0)
+            return result
+        except Exception as e:
+            print(f"[AI Vision] Failed for page {img.get('page')}: {e}")
+            return None
+    
+    tasks = [process_one(img) for img in images]
+    results = await asyncio.gather(*tasks)
+    diagrams = [r for r in results if r is not None]
+    
+    # Save to MongoDB
+    await db.documents.update_one(
+        {"_id": ObjectId(body.document_id)},
+        {"$set": {"diagrams": diagrams, "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    return {"document_id": body.document_id, "diagrams": diagrams}

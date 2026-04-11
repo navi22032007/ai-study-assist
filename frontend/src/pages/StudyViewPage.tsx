@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Sparkles, BookOpen, Brain, MessageSquare, Map,
   Languages, Zap, Download, Share2, ChevronLeft, Loader2,
-  Copy, Check, Globe, RotateCcw, Trash2, Mic, MicOff, Volume2, AudioLines
+  Copy, Check, Globe, RotateCcw, Trash2, Mic, MicOff, Volume2, AudioLines, Eye, ChevronDown, ChevronUp, CheckCircle, XCircle
 } from 'lucide-react'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { GlowCard } from '@/components/ui/spotlight-card'
@@ -13,9 +13,9 @@ import 'reactflow/dist/style.css'
 import { 
   getDocument, generateSummary, generateKeyPoints, generateFlashcards,
   generateELI5, translateContent, chatWithDocument, generateMindMap,
-  generateQuiz, createShareLink, toggleBookmark, exportQuizCSV, deleteDocument
+  generateQuiz, createShareLink, toggleBookmark, exportQuizCSV, deleteDocument, analyzeDiagrams
 } from '../lib/api'
-import { Document, KeyPoint, Flashcard, ChatMessage } from '../types'
+import { Document, KeyPoint, Flashcard, ChatMessage, DiagramAnalysis } from '../types'
 
 // Sub-components defined inline for brevity
 
@@ -624,12 +624,207 @@ function VoiceTutorTab({ docId }: { docId: string }) {
   )
 }
 
+// ─── Diagrams Tab ────────────────────────────────────────────────────────────
+
+function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramAnalysis[], docId: string, onDiagramsLoaded: (d: DiagramAnalysis[]) => void }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [quizState, setQuizState] = useState<Record<string, Record<number, string | null>>>({})
+  const [showAnswers, setShowAnswers] = useState<Record<string, Record<number, boolean>>>({})
+  const [scanning, setScanning] = useState(false)
+
+  const handleScan = async () => {
+    setScanning(true)
+    try {
+      const res = await analyzeDiagrams(docId)
+      const newDiagrams = res.data.diagrams || []
+      onDiagramsLoaded(newDiagrams)
+    } catch (e: any) {
+      alert(e.response?.data?.detail || 'Diagram scan failed')
+    } finally {
+      setScanning(false)
+    }
+  }
+
+  if (!diagrams || diagrams.length === 0) {
+    return (
+      <GlowCard>
+        <div className="glass-card p-12 text-center">
+          <Eye className="w-16 h-16 text-muted-foreground/20 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">{scanning ? 'Scanning Document...' : 'No Diagrams Detected Yet'}</h3>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+            {scanning
+              ? 'Extracting and analyzing visual content with Gemini Vision. This may take 15-30 seconds...'
+              : 'Click the button below to scan this PDF for diagrams, charts, figures, and other visual content.'}
+          </p>
+          {scanning ? (
+            <div className="flex items-center justify-center gap-3">
+              <Loader2 className="w-6 h-6 animate-spin text-violet-400" />
+              <span className="text-sm text-violet-300">Analyzing with AI Vision...</span>
+            </div>
+          ) : (
+            <button onClick={handleScan} className="btn-primary">
+              <Eye className="w-4 h-4" /> Scan for Diagrams
+            </button>
+          )}
+        </div>
+      </GlowCard>
+    )
+  }
+
+  const handleQuizAnswer = (diagramId: string, qIndex: number, answer: string) => {
+    setQuizState(prev => ({
+      ...prev,
+      [diagramId]: { ...(prev[diagramId] || {}), [qIndex]: answer }
+    }))
+    setShowAnswers(prev => ({
+      ...prev,
+      [diagramId]: { ...(prev[diagramId] || {}), [qIndex]: true }
+    }))
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
+          <Eye className="w-5 h-5 text-violet-400" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold">AI Vision Analysis</h2>
+          <p className="text-xs text-muted-foreground">{diagrams.length} diagram{diagrams.length > 1 ? 's' : ''} detected and analysed by Gemini Vision</p>
+        </div>
+      </div>
+
+      {diagrams.map((diagram, idx) => {
+        const isExpanded = expandedId === diagram.id
+        return (
+          <GlowCard key={diagram.id}>
+            <div className="glass-card overflow-hidden">
+              {/* Header */}
+              <button
+                onClick={() => setExpandedId(isExpanded ? null : diagram.id)}
+                className="w-full flex items-center gap-4 p-5 text-left hover:bg-muted/20 transition-colors"
+              >
+                <div className="w-20 h-20 rounded-xl overflow-hidden bg-muted/30 flex-shrink-0 border border-border/30">
+                  <img src={diagram.image_data} alt={diagram.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] uppercase tracking-widest text-violet-400 font-bold">Diagram {idx + 1}</span>
+                  <h3 className="font-semibold text-foreground mt-0.5 truncate">{diagram.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{diagram.explanation.substring(0, 120)}...</p>
+                </div>
+                <div className="flex-shrink-0">
+                  {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
+                </div>
+              </button>
+
+              {/* Expanded Content */}
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="border-t border-border/30">
+                      {/* Image + Explanation split */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+                        <div className="p-6 flex items-center justify-center bg-black/20 border-b md:border-b-0 md:border-r border-border/20">
+                          <img
+                            src={diagram.image_data}
+                            alt={diagram.title}
+                            className="max-w-full max-h-[400px] object-contain rounded-lg shadow-lg"
+                          />
+                        </div>
+                        <div className="p-6 space-y-5">
+                          {/* Explanation */}
+                          <div>
+                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+                              <Sparkles className="w-4 h-4 text-violet-400" /> AI Explanation
+                            </h4>
+                            <p className="text-sm text-muted-foreground leading-relaxed">{diagram.explanation}</p>
+                          </div>
+
+                          {/* Components */}
+                          {diagram.components && diagram.components.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
+                                <BookOpen className="w-4 h-4 text-sky-400" /> Key Components
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {diagram.components.map((c, i) => (
+                                  <span key={i} className="tag bg-sky-500/10 text-sky-300 border border-sky-500/20">{c}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Quiz Questions */}
+                          {diagram.quiz_questions && diagram.quiz_questions.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
+                                <Zap className="w-4 h-4 text-amber-400" /> Diagram Quiz
+                              </h4>
+                              <div className="space-y-4">
+                                {diagram.quiz_questions.map((q, qi) => {
+                                  const selected = quizState[diagram.id]?.[qi]
+                                  const revealed = showAnswers[diagram.id]?.[qi]
+                                  return (
+                                    <div key={qi} className="p-4 rounded-xl bg-muted/20 border border-border/30 space-y-2">
+                                      <p className="text-sm font-medium text-foreground">{q.question}</p>
+                                      <div className="grid grid-cols-1 gap-1.5">
+                                        {q.options.map((opt, oi) => {
+                                          const isSelected = selected === opt
+                                          const isCorrect = opt === q.correct_answer
+                                          let optStyle = 'bg-card hover:bg-muted border-border/30 text-muted-foreground hover:text-foreground'
+                                          if (revealed) {
+                                            if (isCorrect) optStyle = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                                            else if (isSelected && !isCorrect) optStyle = 'bg-red-500/10 border-red-500/30 text-red-300'
+                                          } else if (isSelected) {
+                                            optStyle = 'bg-violet-500/10 border-violet-500/30 text-violet-300'
+                                          }
+                                          return (
+                                            <button
+                                              key={oi}
+                                              onClick={() => !revealed && handleQuizAnswer(diagram.id, qi, opt)}
+                                              disabled={!!revealed}
+                                              className={`text-left px-3 py-2 rounded-lg text-xs border flex items-center gap-2 transition-all ${optStyle}`}
+                                            >
+                                              {revealed && isCorrect && <CheckCircle className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />}
+                                              {revealed && isSelected && !isCorrect && <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />}
+                                              {opt}
+                                            </button>
+                                          )
+                                        })}
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </GlowCard>
+        )
+      })}
+    </div>
+  )
+}
+
 // ─── Main Study View ─────────────────────────────────────────────────────────
 
 const TABS = [
   { id: 'summary', label: 'Summary', icon: Sparkles },
   { id: 'keypoints', label: 'Key Points', icon: BookOpen },
   { id: 'flashcards', label: 'Flashcards', icon: Brain },
+  { id: 'diagrams', label: 'AI Vision', icon: Eye },
   { id: 'mindmap', label: 'Mind Map', icon: Map },
   { id: 'chat', label: 'Text Chat', icon: MessageSquare },
   { id: 'voice', label: 'Voice Tutor', icon: Mic },
@@ -763,6 +958,7 @@ export default function StudyViewPage() {
           {activeTab === 'flashcards' && <FlashcardsTab docId={documentId!} />}
           {activeTab === 'mindmap' && <MindMapTab docId={documentId!} />}
           {activeTab === 'chat' && <ChatTab docId={documentId!} />}
+          {activeTab === 'diagrams' && <DiagramsTab diagrams={doc?.diagrams || []} docId={documentId!} onDiagramsLoaded={(d) => setDoc(prev => prev ? { ...prev, diagrams: d } : prev)} />}
           {activeTab === 'voice' && <VoiceTutorTab docId={documentId!} />}
         </motion.div>
       </AnimatePresence>
