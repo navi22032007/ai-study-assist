@@ -132,6 +132,7 @@ export default function LibraryPage() {
               colSpan: i === 0 ? 2 : 1,
               hasPersistentHover: i === 0,
               onClick: () => navigate(`/study/${doc.id}`),
+              onDelete: () => handleDelete(doc.id),
             }
           })}
         />

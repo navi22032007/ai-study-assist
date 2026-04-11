@@ -43,6 +43,8 @@ app.include_router(quiz.router, prefix="/api/quiz", tags=["Quiz"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
 app.include_router(share.router, prefix="/api/share", tags=["Share"])
 
+from sockets import socket_app
+app.mount("/", socket_app)
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "version": "1.0.0"}

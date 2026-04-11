@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Sparkles, BookOpen, Brain, MessageSquare, Map,
   Languages, Zap, Download, Share2, ChevronLeft, Loader2,
-  Copy, Check, Globe, RotateCcw
+  Copy, Check, Globe, RotateCcw, Trash2
 } from 'lucide-react'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { GlowCard } from '@/components/ui/spotlight-card'
@@ -13,7 +13,7 @@ import 'reactflow/dist/style.css'
 import { 
   getDocument, generateSummary, generateKeyPoints, generateFlashcards,
   generateELI5, translateContent, chatWithDocument, generateMindMap,
-  generateQuiz, createShareLink, toggleBookmark, exportQuizCSV
+  generateQuiz, createShareLink, toggleBookmark, exportQuizCSV, deleteDocument
 } from '../lib/api'
 import { Document, KeyPoint, Flashcard, ChatMessage } from '../types'
 
@@ -479,6 +479,14 @@ export default function StudyViewPage() {
     } catch { alert('No quiz found. Generate a quiz first.') }
   }
 
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) return
+    try {
+      await deleteDocument(documentId!)
+      navigate('/library')
+    } catch { alert('Failed to delete document') }
+  }
+
   if (loading) return (
     <div className="p-6 max-w-5xl mx-auto space-y-4">
       <div className="skeleton h-10 w-64 rounded-xl" />
@@ -501,6 +509,15 @@ export default function StudyViewPage() {
           <p className="text-sm text-muted-foreground mt-0.5">{doc.folder} · {(doc.file_size / 1024).toFixed(0)} KB · {new Date(doc.created_at).toLocaleDateString()}</p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
+          <button onClick={handleDelete} className="btn-secondary text-xs px-3 py-2 border-red-500/30 hover:border-red-500/60 bg-red-500/10 hover:bg-red-500/20 text-red-400">
+            <Trash2 className="w-3.5 h-3.5" /> Delete
+          </button>
+          <button onClick={() => {
+            const roomId = Math.floor(100000 + Math.random() * 900000).toString()
+            navigate(`/room/${roomId}?documentId=${documentId}`)
+          }} className="btn-secondary text-xs px-3 py-2 border-emerald-500/30 hover:border-emerald-500/60 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400">
+            <Globe className="w-3.5 h-3.5" /> Live Room
+          </button>
           <button onClick={handleShare} className="btn-secondary text-xs px-3 py-2">
             <Share2 className="w-3.5 h-3.5" /> Share
           </button>

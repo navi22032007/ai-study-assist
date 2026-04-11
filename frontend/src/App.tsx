@@ -16,6 +16,7 @@ import LibraryPage from './pages/LibraryPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import ProfilePage from './pages/ProfilePage'
 import SharedDocumentPage from './pages/SharedDocumentPage'
+import LiveStudyRoomPage from './pages/LiveStudyRoomPage'
 
 // Layout
 import AppLayout from './components/layout/AppLayout'
@@ -51,6 +52,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/shared/:token" element={<SharedDocumentPage />} />
+        <Route path="/room/:roomId" element={<LiveStudyRoomPage />} />
 
         {/* Protected */}
         <Route element={<ProtectedRoute />}>
