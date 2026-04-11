@@ -115,3 +115,10 @@ export const getSharedDocument = (token: string) =>
 
 export const revokeShareLink = (document_id: string) =>
   api.delete(`/share/${document_id}`)
+
+// ── Certificates ──────────────────────────────────────
+export const getMyCertificates = () =>
+  api.get('/certificates/me')
+
+export const verifyPublicCertificate = (token: string) =>
+  api.get(`/certificates/public/${token}`)

@@ -17,6 +17,7 @@ import AnalyticsPage from './pages/AnalyticsPage'
 import ProfilePage from './pages/ProfilePage'
 import SharedDocumentPage from './pages/SharedDocumentPage'
 import LiveStudyRoomPage from './pages/LiveStudyRoomPage'
+import PublicCertificatePage from './pages/PublicCertificatePage'
 
 // Layout
 import AppLayout from './components/layout/AppLayout'
@@ -53,6 +54,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/shared/:token" element={<SharedDocumentPage />} />
         <Route path="/room/:roomId" element={<LiveStudyRoomPage />} />
+        <Route path="/certificate/:token" element={<PublicCertificatePage />} />
 
         {/* Protected */}
         <Route element={<ProtectedRoute />}>

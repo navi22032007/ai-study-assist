@@ -17,6 +17,17 @@ def get_model():
         )
     )
 
+def get_json_model():
+    return genai.GenerativeModel(
+        "gemini-2.5-flash",
+        generation_config=genai.GenerationConfig(
+            temperature=0.3,
+            top_p=0.9,
+            max_output_tokens=8192,
+            response_mime_type="application/json"
+        )
+    )
+
 def safe_json_parse(text: str) -> Any:
     """Parse JSON with fallback cleanup."""
     # Try direct parse
@@ -75,7 +86,7 @@ Generate a concise summary of the document in EXACTLY 200 words or fewer.
     return summary
 
 async def generate_key_points(document_text: str) -> List[dict]:
-    model = get_model()
+    model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + """
 Extract 5-10 key points from the document.
 Return ONLY a valid JSON array with NO other text. Format:
@@ -103,7 +114,7 @@ importance_level must be: "high", "medium", or "low"
     return result
 
 async def generate_flashcards(document_text: str, count: int = 10) -> List[dict]:
-    model = get_model()
+    model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + f"""
 Create exactly {count} flashcards from the document content.
 Return ONLY a valid JSON array with NO other text. Format:
@@ -121,7 +132,7 @@ Return ONLY a valid JSON array with NO other text. Format:
     return [{"front": str(f.get("front", "")), "back": str(f.get("back", "")), "topic": str(f.get("topic", "General"))} for f in data[:count]]
 
 async def generate_quiz(document_text: str, count: int = 10, difficulty: str = "medium", question_types: Optional[List[str]] = None) -> List[dict]:
-    model = get_model()
+    model = get_json_model()
     
     types_instruction = ""
     if question_types:
@@ -233,7 +244,7 @@ TEXT TO TRANSLATE:
     return response.text.strip()
 
 async def generate_mind_map(document_text: str) -> dict:
-    model = get_model()
+    model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:12000]) + """
 Create a mind map structure from the document content.
 Return ONLY a valid JSON object with NO other text. Format:

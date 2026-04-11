@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Sparkles, BookOpen, Brain, MessageSquare, Map,
   Languages, Zap, Download, Share2, ChevronLeft, Loader2,
-  Copy, Check, Globe, RotateCcw, Trash2
+  Copy, Check, Globe, RotateCcw, Trash2, Mic, MicOff, Volume2, AudioLines
 } from 'lucide-react'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { GlowCard } from '@/components/ui/spotlight-card'
@@ -425,6 +425,205 @@ function ChatTab({ docId }: { docId: string }) {
   )
 }
 
+function VoiceTutorTab({ docId }: { docId: string }) {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [isListening, setIsListening] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [processing, setProcessing] = useState(false)
+  const [transcriptItem, setTranscriptItem] = useState('')
+  const bottomRef = useRef<HTMLDivElement | null>(null)
+  
+  const recognitionRef = useRef<any>(null)
+  const synthRef = useRef<SpeechSynthesis | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition()
+        recognitionRef.current.continuous = false
+        recognitionRef.current.interimResults = true
+      }
+      synthRef.current = window.speechSynthesis
+    }
+  }, [])
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, transcriptItem])
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop()
+      setIsListening(false)
+      return
+    }
+
+    if (synthRef.current?.speaking) {
+      synthRef.current.cancel()
+      setIsSpeaking(false)
+    }
+
+    if (!recognitionRef.current) {
+      alert("Your browser does not support the Web Speech API. Try Chrome.")
+      return
+    }
+
+    setTranscriptItem('')
+    recognitionRef.current.onresult = (event: any) => {
+      let finalTranscript = ''
+      let interimTranscript = ''
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript
+        } else {
+          interimTranscript += event.results[i][0].transcript
+        }
+      }
+      setTranscriptItem(finalTranscript || interimTranscript)
+
+      if (finalTranscript) {
+        handleUserSpeech(finalTranscript)
+      }
+    }
+
+    recognitionRef.current.onerror = () => setIsListening(false)
+    recognitionRef.current.onend = () => setIsListening(false)
+    
+    recognitionRef.current.start()
+    setIsListening(true)
+  }
+
+  const handleUserSpeech = async (text: string) => {
+    recognitionRef.current?.stop()
+    setIsListening(false)
+    setTranscriptItem('')
+    
+    const userMsg: ChatMessage = { role: 'user', content: text }
+    setMessages(prev => [...prev, userMsg])
+    setProcessing(true)
+
+    try {
+      const res = await chatWithDocument(docId, text, messages)
+      const reply = res.data.response
+      setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+      speakResponse(reply)
+    } catch(e: any) {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection failed.' }])
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  const speakResponse = (text: string) => {
+    if (!synthRef.current) return
+    synthRef.current.cancel() // stop prev
+    const utterance = new SpeechSynthesisUtterance(text)
+    
+    const voices = synthRef.current.getVoices()
+    const niceVoice = voices.find(v => v.name.includes('Google') || v.name.includes('Samantha') || v.lang === 'en-US')
+    if (niceVoice) utterance.voice = niceVoice
+    
+    utterance.rate = 0.95
+    utterance.pitch = 1.05
+
+    utterance.onstart = () => setIsSpeaking(true)
+    utterance.onend = () => setIsSpeaking(false)
+    utterance.onerror = () => setIsSpeaking(false)
+
+    synthRef.current.speak(utterance)
+  }
+
+  return (
+    <GlowCard>
+      <div className="glass-card flex flex-col md:flex-row h-[500px] overflow-hidden relative">
+        <div className="w-full md:w-1/2 p-10 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border/50 relative bg-black/10">
+          <div className="relative mb-8">
+            {isListening && (
+               <div className="absolute inset-0 bg-sky-500 rounded-full blur-[40px] opacity-40 animate-pulse" />
+            )}
+            {isSpeaking && (
+               <div className="absolute inset-0 bg-purple-500 rounded-full blur-[40px] opacity-30 animate-pulse" />
+            )}
+            
+            <button 
+              onClick={toggleListening}
+              className={`relative z-10 w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl border ${
+                isListening ? 'bg-sky-500/20 border-sky-500 text-sky-400 scale-105' 
+                : isSpeaking ? 'bg-purple-500/20 border-purple-500 text-purple-400' 
+                : 'bg-card border-border hover:bg-muted text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {processing ? (
+                <Loader2 className="w-10 h-10 animate-spin" />
+              ) : isSpeaking ? (
+                <AudioLines className="w-12 h-12 animate-pulse" />
+              ) : isListening ? (
+                <Mic className="w-12 h-12 animate-bounce" />
+              ) : (
+                <MicOff className="w-10 h-10" />
+              )}
+            </button>
+          </div>
+          
+          <h3 className="text-xl font-bold mb-2">Voice AI Tutor</h3>
+          <p className="text-sm text-muted-foreground text-center max-w-[250px]">
+            {processing ? 'Thinking about your question...' 
+            : isSpeaking ? 'Tutor is speaking...' 
+            : isListening ? 'Listening to you...' 
+            : 'Tap the microphone to ask a question out loud'}
+          </p>
+
+          {isSpeaking && (
+            <button onClick={() => { synthRef.current?.cancel(); setIsSpeaking(false); }} className="mt-6 text-xs text-muted-foreground hover:text-white px-4 py-2 rounded-full border border-border bg-card">
+              Interrupt
+            </button>
+          )}
+        </div>
+
+        <div className="w-full md:w-1/2 flex flex-col bg-background/50">
+          <div className="p-4 border-b border-border/50 bg-muted/20">
+            <h4 className="font-semibold text-sm flex items-center gap-2"><AudioLines className="w-4 h-4 text-sky-400" /> Live Transcript</h4>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+             {messages.length === 0 && !transcriptItem && (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30">
+                  <Mic className="w-12 h-12 mb-4 opacity-20" />
+                  <p className="text-sm">Speak to start the conversation</p>
+                </div>
+             )}
+             
+             {messages.map((m, i) => (
+               <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
+                 className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">{m.role === 'user' ? 'You' : 'AI Tutor'}</span>
+                 <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                   m.role === 'user' 
+                     ? 'bg-sky-500/10 text-sky-100 border border-sky-500/20 rounded-tr-sm' 
+                     : 'bg-purple-500/10 text-purple-100 border border-purple-500/20 rounded-tl-sm'
+                 }`}>
+                   {m.content}
+                 </div>
+               </motion.div>
+             ))}
+
+             {transcriptItem && (
+               <div className="flex flex-col items-end opacity-60">
+                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">Listening...</span>
+                 <div className="max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed bg-sky-500/5 text-sky-100/70 border border-sky-500/10 rounded-tr-sm italic">
+                   {transcriptItem}
+                 </div>
+               </div>
+             )}
+             
+             <div ref={el => { bottomRef.current = el }} />
+          </div>
+        </div>
+      </div>
+    </GlowCard>
+  )
+}
+
 // ─── Main Study View ─────────────────────────────────────────────────────────
 
 const TABS = [
@@ -432,7 +631,8 @@ const TABS = [
   { id: 'keypoints', label: 'Key Points', icon: BookOpen },
   { id: 'flashcards', label: 'Flashcards', icon: Brain },
   { id: 'mindmap', label: 'Mind Map', icon: Map },
-  { id: 'chat', label: 'Chat', icon: MessageSquare },
+  { id: 'chat', label: 'Text Chat', icon: MessageSquare },
+  { id: 'voice', label: 'Voice Tutor', icon: Mic },
 ]
 
 export default function StudyViewPage() {
@@ -563,6 +763,7 @@ export default function StudyViewPage() {
           {activeTab === 'flashcards' && <FlashcardsTab docId={documentId!} />}
           {activeTab === 'mindmap' && <MindMapTab docId={documentId!} />}
           {activeTab === 'chat' && <ChatTab docId={documentId!} />}
+          {activeTab === 'voice' && <VoiceTutorTab docId={documentId!} />}
         </motion.div>
       </AnimatePresence>
     </AnimatedGroup>

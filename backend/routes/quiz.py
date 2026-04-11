@@ -149,6 +149,23 @@ async def submit_quiz(body: QuizSubmitRequest, request: Request):
     ]
     
     now = datetime.now(timezone.utc)
+    import secrets
+    certificate_token = None
+    if score >= 80:
+        token = secrets.token_hex(16)
+        cert_doc = {
+            "user_id": user["uid"],
+            "user_name": user.get("name", user.get("email", "Student").split("@")[0].capitalize()),
+            "document_id": quiz["document_id"],
+            "topic": quiz.get("document_title", "Unknown Topic"),
+            "score": round(score, 2),
+            "token": token,
+            "quiz_id": body.quiz_id,
+            "created_at": now
+        }
+        cert_result = await db.certificates.insert_one(cert_doc)
+        certificate_token = token
+
     attempt_doc = {
         "quiz_id": body.quiz_id,
         "document_id": quiz["document_id"],
@@ -161,6 +178,7 @@ async def submit_quiz(body: QuizSubmitRequest, request: Request):
         "weak_topics": weak_topics,
         "difficulty": quiz.get("difficulty", "medium"),
         "document_title": quiz.get("document_title", ""),
+        "certificate_token": certificate_token,
         "created_at": now
     }
     

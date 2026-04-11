@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from dotenv import load_dotenv
 
-from routes import auth, documents, ai_features, quiz, analytics, share
+from routes import auth, documents, ai_features, quiz, analytics, share, certificates
 from middleware.auth_middleware import AuthMiddleware
 from middleware.rate_limiter import RateLimiterMiddleware
 from database import init_db, close_db
@@ -42,6 +42,7 @@ app.include_router(ai_features.router, prefix="/api/ai", tags=["AI Features"])
 app.include_router(quiz.router, prefix="/api/quiz", tags=["Quiz"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
 app.include_router(share.router, prefix="/api/share", tags=["Share"])
+app.include_router(certificates.router, prefix="/api/certificates", tags=["Certificates"])
 
 from sockets import socket_app
 app.mount("/", socket_app)
