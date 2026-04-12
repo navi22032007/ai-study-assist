@@ -428,6 +428,7 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
                 />
              ))}
           </div>
+<<<<<<< HEAD
           <button 
             onClick={() => navigate((currentIndex + 1) % cards.length)}
             className="btn-primary flex-1 shadow-primary/20"
@@ -436,6 +437,38 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
           </button>
         </div>
       </div>
+=======
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {cards.map((card, i) => (
+              <GlowCard key={i}>
+                <motion.div onClick={() => setFlipped(f => ({ ...f, [i]: !f[i] }))}
+                  className="h-36 cursor-pointer"
+                  style={{ perspective: '1000px' }}
+                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.div
+                    className="w-full h-full relative"
+                    animate={{ rotateY: flipped[i] ? 180 : 0 }}
+                    transition={{ duration: 0.4 }}
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-between"
+                      style={{ backfaceVisibility: 'hidden' }}>
+                      <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">{card.topic}</span>
+                      <p className="text-sm font-semibold text-white text-center">{card.front}</p>
+                      <p className="text-xs text-muted-foreground text-right">Tap to flip →</p>
+                    </div>
+                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-center items-center bg-gradient-to-br from-emerald-500/10 to-amber-600/10"
+                      style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                      <p className="text-sm text-foreground text-center leading-relaxed">{card.back}</p>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </GlowCard>
+            ))}
+          </div>
+        </>
+      )}
+>>>>>>> b9f9796 (feat: implement frontend application structure with routing, layout, and core study pages)
     </div>
   )
 }

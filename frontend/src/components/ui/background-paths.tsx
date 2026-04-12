@@ -13,6 +13,10 @@ function FloatingPaths({ position }: { position: number }) {
         } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
             684 - i * 5 * position
         } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+<<<<<<< HEAD
+=======
+        color: `rgba(16, 185, 129, ${0.1 + i * 0.03})`,
+>>>>>>> b9f9796 (feat: implement frontend application structure with routing, layout, and core study pages)
         width: 0.5 + i * 0.03,
     }));
 
