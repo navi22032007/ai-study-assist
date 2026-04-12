@@ -48,8 +48,8 @@ export default function AnalyticsPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: BookOpen, label: 'Documents', value: data?.total_documents ?? 0, color: 'bg-sky-500/10 text-sky-400' },
-          { icon: Trophy, label: 'Quizzes Taken', value: data?.total_quizzes ?? 0, color: 'bg-violet-500/10 text-violet-400' },
+          { icon: BookOpen, label: 'Documents', value: data?.total_documents ?? 0, color: 'bg-emerald-500/10 text-emerald-400' },
+          { icon: Trophy, label: 'Quizzes Taken', value: data?.total_quizzes ?? 0, color: 'bg-amber-500/10 text-amber-400' },
           { icon: BarChart3, label: 'Avg Score', value: `${data?.average_score?.toFixed(1) ?? 0}%`, color: 'bg-emerald-500/10 text-emerald-400' },
           { icon: BarChart3, label: 'Best Score', value: `${data?.best_score?.toFixed(1) ?? 0}%`, color: 'bg-amber-500/10 text-amber-400' },
         ].map(({ icon: Icon, label, value, color }) => (
@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
         <GlowCard>
           <div className="glass-card p-6">
             <div className="flex items-center gap-2 mb-5">
-              <TrendingUp className="w-4 h-4 text-primary" />
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
               <h2 className="font-semibold">Score History</h2>
             </div>
             {scoreHistory.length > 0 ? (
@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
         <GlowCard>
           <div className="glass-card p-6">
             <div className="flex items-center gap-2 mb-5">
-              <Target className="w-4 h-4 text-violet-400" />
+              <Target className="w-4 h-4 text-amber-400" />
               <h2 className="font-semibold">Topic Performance</h2>
             </div>
             {topicData.length > 0 ? (
@@ -155,15 +155,15 @@ export default function AnalyticsPage() {
         <GlowCard>
           <div className="glass-card p-6">
             <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-4 h-4 text-sky-400" />
+              <BarChart3 className="w-4 h-4 text-emerald-400" />
               <h2 className="font-semibold">Recent Activity</h2>
             </div>
             {data?.recent_activity?.length ? (
               <div className="space-y-3">
                 {data.recent_activity.map((a, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
-                    <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center flex-shrink-0">
-                      <Trophy className="w-4 h-4 text-sky-400" />
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                      <Trophy className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground truncate">{a.document_title}</p>

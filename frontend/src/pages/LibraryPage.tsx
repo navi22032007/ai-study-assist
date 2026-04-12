@@ -77,7 +77,7 @@ export default function LibraryPage() {
         <div className="flex gap-2 overflow-x-auto pb-1">
           <button
             onClick={() => setSelectedFolder('')}
-            className={`px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${!selectedFolder ? 'bg-primary/10 text-primary border border-primary/20' : 'btn-ghost'}`}
+            className={`px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${!selectedFolder ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'btn-ghost'}`}
           >
             All
           </button>
@@ -85,7 +85,7 @@ export default function LibraryPage() {
             <button
               key={f}
               onClick={() => setSelectedFolder(f === selectedFolder ? '' : f)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${selectedFolder === f ? 'bg-primary/10 text-primary border border-primary/20' : 'btn-ghost'}`}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${selectedFolder === f ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'btn-ghost'}`}
             >
               <FolderOpen className="w-3.5 h-3.5" /> {f}
             </button>
@@ -119,7 +119,7 @@ export default function LibraryPage() {
             const featureCount = tags.length
             const fileIcon = doc.file_type === 'application/pdf'
               ? <FileText className="w-4 h-4 text-red-400" />
-              : <FileText className="w-4 h-4 text-sky-400" />
+              : <FileText className="w-4 h-4 text-emerald-400" />
 
             return {
               title: doc.title,

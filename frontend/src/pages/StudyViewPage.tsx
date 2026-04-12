@@ -76,7 +76,7 @@ function SummaryTab({ docId, initialSummary, initialEli5, onUpdate }: { docId: s
       {!summary ? (
         <GlowCard>
           <div className="glass-card p-10 text-center">
-            <Sparkles className="w-10 h-10 text-sky-400 mx-auto mb-3 opacity-60" />
+            <Sparkles className="w-10 h-10 text-emerald-400 mx-auto mb-3 opacity-60" />
             <p className="text-muted-foreground mb-4 text-sm">No summary generated yet</p>
             <button onClick={generate} disabled={loading} className="btn-primary">
               {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</> : <><Sparkles className="w-4 h-4" /> Generate Summary</>}
@@ -123,7 +123,7 @@ function SummaryTab({ docId, initialSummary, initialEli5, onUpdate }: { docId: s
           <GlowCard>
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-3">
-              <Globe className="w-4 h-4 text-violet-400" />
+              <Globe className="w-4 h-4 text-amber-400" />
               <h3 className="font-medium text-sm">Translate</h3>
             </div>
             <div className="flex gap-2">
@@ -184,7 +184,7 @@ function KeyPointsTab({ docId, initialPoints, onUpdate }: { docId: string, initi
       {keyPoints.length === 0 ? (
         <GlowCard>
           <div className="glass-card p-10 text-center">
-            <BookOpen className="w-10 h-10 text-violet-400 mx-auto mb-3 opacity-60" />
+            <BookOpen className="w-10 h-10 text-amber-400 mx-auto mb-3 opacity-60" />
             <p className="text-muted-foreground mb-4 text-sm">No key points extracted yet</p>
             <button onClick={generate} disabled={loading} className="btn-primary">
               {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Extracting...</> : <><BookOpen className="w-4 h-4" /> Extract Key Points</>}
@@ -240,7 +240,7 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
       {cards.length === 0 ? (
         <GlowCard>
         <div className="glass-card p-10 text-center">
-          <Brain className="w-10 h-10 text-sky-400 mx-auto mb-3 opacity-60" />
+          <Brain className="w-10 h-10 text-emerald-400 mx-auto mb-3 opacity-60" />
           <p className="text-muted-foreground mb-4 text-sm">No flashcards generated yet</p>
           <div className="flex items-center gap-3 justify-center mb-4">
             <label className="text-sm text-muted-foreground">Count:</label>
@@ -275,11 +275,11 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
                   >
                     <div className="absolute inset-0 glass-card p-4 flex flex-col justify-between"
                       style={{ backfaceVisibility: 'hidden' }}>
-                      <span className="tag bg-sky-500/10 text-sky-400 border border-sky-500/20 self-start">{card.topic}</span>
+                      <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">{card.topic}</span>
                       <p className="text-sm font-semibold text-white text-center">{card.front}</p>
                       <p className="text-xs text-muted-foreground text-right">Tap to flip →</p>
                     </div>
-                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-center items-center bg-gradient-to-br from-sky-500/10 to-violet-600/10"
+                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-center items-center bg-gradient-to-br from-emerald-500/10 to-amber-600/10"
                       style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
                       <p className="text-sm text-foreground text-center leading-relaxed">{card.back}</p>
                     </div>
@@ -300,9 +300,9 @@ function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: st
   const [loading, setLoading] = useState(false)
 
   const nodeTypeStyles: Record<string, any> = {
-    root: { background: 'linear-gradient(135deg,#0ea5e9,#7c3aed)', color: '#fff', border: 'none', borderRadius: 16, padding: '8px 16px', fontWeight: 700 },
-    topic: { background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 12, padding: '6px 12px', fontWeight: 600 },
-    subtopic: { background: 'rgba(124,58,237,0.1)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 8, padding: '4px 10px', fontSize: '12px' },
+    root: { background: 'linear-gradient(135deg,#10b981,#f59e0b)', color: '#fff', border: 'none', borderRadius: 16, padding: '8px 16px', fontWeight: 700 },
+    topic: { background: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '6px 12px', fontWeight: 600 },
+    subtopic: { background: 'rgba(245,158,11,0.1)', color: '#fcd34d', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '4px 10px', fontSize: '12px' },
   }
 
   const transform = (rawNodes: any[], rawEdges: any[]) => {
@@ -320,7 +320,7 @@ function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: st
     
     const finalEdges = rawEdges.map((e: any) => ({
       id: e.id, source: e.source, target: e.target,
-      style: { stroke: 'rgba(14,165,233,0.4)', strokeWidth: 2 },
+      style: { stroke: 'rgba(16,185,129,0.4)', strokeWidth: 2 },
       animated: true,
     }))
 
@@ -415,7 +415,7 @@ function ChatTab({ docId }: { docId: string }) {
             className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
               m.role === 'user' 
-                ? 'bg-gradient-to-br from-sky-500 to-violet-600 text-white rounded-br-sm' 
+                ? 'bg-gradient-to-br from-emerald-500 to-amber-600 text-white rounded-br-sm' 
                 : 'bg-muted text-foreground rounded-bl-sm'
             }`}>
               {m.content}
@@ -565,17 +565,17 @@ function VoiceTutorTab({ docId }: { docId: string }) {
         <div className="w-full md:w-1/2 p-10 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border/50 relative bg-black/10">
           <div className="relative mb-8">
             {isListening && (
-               <div className="absolute inset-0 bg-sky-500 rounded-full blur-[40px] opacity-40 animate-pulse" />
+               <div className="absolute inset-0 bg-emerald-500 rounded-full blur-[40px] opacity-40 animate-pulse" />
             )}
             {isSpeaking && (
-               <div className="absolute inset-0 bg-purple-500 rounded-full blur-[40px] opacity-30 animate-pulse" />
+               <div className="absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-30 animate-pulse" />
             )}
             
             <button 
               onClick={toggleListening}
               className={`relative z-10 w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl border ${
-                isListening ? 'bg-sky-500/20 border-sky-500 text-sky-400 scale-105' 
-                : isSpeaking ? 'bg-purple-500/20 border-purple-500 text-purple-400' 
+                isListening ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 scale-105' 
+                : isSpeaking ? 'bg-orange-500/20 border-orange-500 text-orange-400' 
                 : 'bg-card border-border hover:bg-muted text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -608,7 +608,7 @@ function VoiceTutorTab({ docId }: { docId: string }) {
 
         <div className="w-full md:w-1/2 flex flex-col bg-background/50">
           <div className="p-4 border-b border-border/50 bg-muted/20">
-            <h4 className="font-semibold text-sm flex items-center gap-2"><AudioLines className="w-4 h-4 text-sky-400" /> Live Transcript</h4>
+            <h4 className="font-semibold text-sm flex items-center gap-2"><AudioLines className="w-4 h-4 text-emerald-400" /> Live Transcript</h4>
           </div>
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
              {messages.length === 0 && !transcriptItem && (
@@ -624,8 +624,8 @@ function VoiceTutorTab({ docId }: { docId: string }) {
                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">{m.role === 'user' ? 'You' : 'AI Tutor'}</span>
                  <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                    m.role === 'user' 
-                     ? 'bg-sky-500/10 text-sky-100 border border-sky-500/20 rounded-tr-sm' 
-                     : 'bg-purple-500/10 text-purple-100 border border-purple-500/20 rounded-tl-sm'
+                     ? 'bg-emerald-500/10 text-emerald-100 border border-emerald-500/20 rounded-tr-sm' 
+                     : 'bg-orange-500/10 text-orange-100 border border-orange-500/20 rounded-tl-sm'
                  }`}>
                    {m.content}
                  </div>
@@ -635,7 +635,7 @@ function VoiceTutorTab({ docId }: { docId: string }) {
              {transcriptItem && (
                <div className="flex flex-col items-end opacity-60">
                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">Listening...</span>
-                 <div className="max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed bg-sky-500/5 text-sky-100/70 border border-sky-500/10 rounded-tr-sm italic">
+                 <div className="max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed bg-emerald-500/5 text-emerald-100/70 border border-emerald-500/10 rounded-tr-sm italic">
                    {transcriptItem}
                  </div>
                </div>
@@ -683,8 +683,8 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
           </p>
           {scanning ? (
             <div className="flex items-center justify-center gap-3">
-              <Loader2 className="w-6 h-6 animate-spin text-violet-400" />
-              <span className="text-sm text-violet-300">Analyzing with AI Vision...</span>
+              <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
+              <span className="text-sm text-amber-300">Analyzing with AI Vision...</span>
             </div>
           ) : (
             <button onClick={handleScan} className="btn-primary">
@@ -710,8 +710,8 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
-          <Eye className="w-5 h-5 text-violet-400" />
+        <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <Eye className="w-5 h-5 text-amber-400" />
         </div>
         <div>
           <h2 className="text-lg font-bold">AI Vision Analysis</h2>
@@ -733,7 +733,7 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
                   <img src={diagram.image_data} alt={diagram.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] uppercase tracking-widest text-violet-400 font-bold">Visual {idx + 1}</span>
+                  <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">Visual {idx + 1}</span>
                   <h3 className="font-semibold text-foreground mt-0.5 truncate">{diagram.title}</h3>
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{diagram.explanation.substring(0, 120)}...</p>
                 </div>
@@ -766,7 +766,7 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
                           {/* Explanation */}
                           <div>
                             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
-                              <Sparkles className="w-4 h-4 text-violet-400" /> AI Explanation
+                              <Sparkles className="w-4 h-4 text-amber-400" /> AI Explanation
                             </h4>
                             <p className="text-sm text-muted-foreground leading-relaxed">{diagram.explanation}</p>
                           </div>
@@ -775,11 +775,11 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
                           {diagram.components && diagram.components.length > 0 && (
                             <div>
                               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
-                                <BookOpen className="w-4 h-4 text-sky-400" /> Key Components
+                                <BookOpen className="w-4 h-4 text-emerald-400" /> Key Components
                               </h4>
                               <div className="flex flex-wrap gap-2">
                                 {diagram.components.map((c, i) => (
-                                  <span key={i} className="tag bg-sky-500/10 text-sky-300 border border-sky-500/20">{c}</span>
+                                  <span key={i} className="tag bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">{c}</span>
                                 ))}
                               </div>
                             </div>
@@ -807,7 +807,7 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
                                             if (isCorrect) optStyle = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
                                             else if (isSelected && !isCorrect) optStyle = 'bg-red-500/10 border-red-500/30 text-red-300'
                                           } else if (isSelected) {
-                                            optStyle = 'bg-violet-500/10 border-violet-500/30 text-violet-300'
+                                            optStyle = 'bg-amber-500/10 border-amber-500/30 text-amber-300'
                                           }
                                           return (
                                             <button

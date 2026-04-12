@@ -230,12 +230,12 @@ export default function LiveStudyRoomPage() {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <GlowCard className="max-w-md w-full">
           <div className="glass-card p-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-600/20 border border-indigo-500/20 flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-orange-600/20 border border-indigo-500/20 flex items-center justify-center mx-auto mb-6">
               <Users className="w-8 h-8 text-indigo-400" />
             </div>
             <h1 className="text-2xl font-bold text-center mb-2">Join Study Room</h1>
             <p className="text-center text-muted-foreground text-sm mb-6">
-              You are invited to room <span className="font-mono text-sky-400 font-bold">{roomId}</span>
+              You are invited to room <span className="font-mono text-emerald-400 font-bold">{roomId}</span>
             </p>
             
             <form onSubmit={connectToRoom} className="space-y-4">
@@ -267,7 +267,7 @@ export default function LiveStudyRoomPage() {
       <header className="h-16 border-b border-border/50 backdrop-blur-xl flex items-center justify-between px-6 flex-shrink-0 z-50 relative bg-background/50">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(14,165,233,0.4)]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(14,165,233,0.4)]">
               <Activity className="w-5 h-5 text-white animate-pulse" />
             </div>
             <div className="flex flex-col">
@@ -294,11 +294,11 @@ export default function LiveStudyRoomPage() {
                 disabled={!isHost}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   roomMode === m.id 
-                    ? 'bg-card text-sky-400 shadow-[0_4px_12px_rgba(14,165,233,0.1)] border border-sky-500/20' 
+                    ? 'bg-card text-emerald-400 shadow-[0_4px_12px_rgba(14,165,233,0.1)] border border-emerald-500/20' 
                     : 'text-muted-foreground hover:text-white disabled:opacity-50 disabled:hover:text-muted-foreground'
                 }`}
               >
-                <m.icon className={`w-4 h-4 ${roomMode === m.id ? 'text-sky-400' : ''}`} />
+                <m.icon className={`w-4 h-4 ${roomMode === m.id ? 'text-emerald-400' : ''}`} />
                 {m.label}
               </button>
             ))}
@@ -317,7 +317,7 @@ export default function LiveStudyRoomPage() {
         <aside className="w-64 border-r border-border/50 bg-card/10 flex flex-col z-40 backdrop-blur-md">
           <div className="p-4 border-b border-border/30 bg-muted/10">
             <h3 className="font-semibold text-sm flex items-center gap-2 tracking-wide">
-              <Users className="w-4 h-4 text-sky-400" /> Participants ({participants.length})
+              <Users className="w-4 h-4 text-emerald-400" /> Participants ({participants.length})
             </h3>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -328,7 +328,7 @@ export default function LiveStudyRoomPage() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className={`flex items-center justify-between p-3 rounded-xl border transition-all ${p.id === socket?.id ? 'bg-sky-500/10 border-sky-500/30' : 'bg-muted/20 border-transparent hover:border-border/50'}`}
+                  className={`flex items-center justify-between p-3 rounded-xl border transition-all ${p.id === socket?.id ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-muted/20 border-transparent hover:border-border/50'}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${p.isHost ? 'bg-amber-500/20 text-amber-500' : 'bg-muted text-muted-foreground'}`}>
@@ -410,7 +410,7 @@ export default function LiveStudyRoomPage() {
                             disabled={myAnswer !== null}
                             className={`p-5 rounded-2xl border-2 text-left font-medium transition-all text-lg group relative overflow-hidden ${
                               myAnswer === null 
-                                ? 'bg-card/40 hover:bg-card border-border/50 hover:border-sky-500/50'
+                                ? 'bg-card/40 hover:bg-card border-border/50 hover:border-emerald-500/50'
                                 : isCorrect 
                                   ? 'bg-emerald-500/20 border-emerald-500 text-emerald-100'
                                   : isWrong 
@@ -420,7 +420,7 @@ export default function LiveStudyRoomPage() {
                                       : 'bg-card/20 border-border/30 opacity-50'
                             }`}
                           >
-                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mr-4 font-bold text-sm ${myAnswer === null ? 'bg-muted text-muted-foreground group-hover:bg-sky-500/20 group-hover:text-sky-400' : 'bg-background/30'}`}>
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mr-4 font-bold text-sm ${myAnswer === null ? 'bg-muted text-muted-foreground group-hover:bg-emerald-500/20 group-hover:text-emerald-400' : 'bg-background/30'}`}>
                               {['A', 'B', 'C', 'D'][i]}
                             </span>
                             {opt}
@@ -460,9 +460,9 @@ export default function LiveStudyRoomPage() {
                       return (
                         <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                           <span className="text-[11px] text-muted-foreground mb-1 ml-1">{msg.sender}</span>
-                          <div className={`max-w-[70%] p-4 rounded-2xl ${isMe ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-br-sm shadow-[0_5px_20px_rgba(99,102,241,0.2)]' : 'bg-muted/80 backdrop-blur-sm text-foreground rounded-bl-sm border border-border/50'}`}>
+                          <div className={`max-w-[70%] p-4 rounded-2xl ${isMe ? 'bg-gradient-to-br from-indigo-500 to-orange-600 text-white rounded-br-sm shadow-[0_5px_20px_rgba(99,102,241,0.2)]' : 'bg-muted/80 backdrop-blur-sm text-foreground rounded-bl-sm border border-border/50'}`}>
                             {msg.anchor && (
-                              <div className="mb-2 text-[10px] font-mono bg-black/20 text-sky-200 px-2 py-1 rounded inline-flex items-center gap-1 border border-white/10">
+                              <div className="mb-2 text-[10px] font-mono bg-black/20 text-emerald-200 px-2 py-1 rounded inline-flex items-center gap-1 border border-white/10">
                                 <ShieldAlert className="w-3 h-3" /> Ref: {msg.anchor}
                               </div>
                             )}

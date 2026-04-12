@@ -83,8 +83,8 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon={BookOpen} label="Documents" value={analytics?.total_documents ?? 0} sub="Uploaded" color="bg-sky-500/10 text-sky-400" />
-          <StatCard icon={Trophy} label="Quizzes" value={analytics?.total_quizzes ?? 0} sub="Attempted" color="bg-violet-500/10 text-violet-400" />
+          <StatCard icon={BookOpen} label="Documents" value={analytics?.total_documents ?? 0} sub="Uploaded" color="bg-emerald-500/10 text-emerald-400" />
+          <StatCard icon={Trophy} label="Quizzes" value={analytics?.total_quizzes ?? 0} sub="Attempted" color="bg-amber-500/10 text-amber-400" />
           <StatCard icon={BarChart3} label="Avg Score" value={`${analytics?.average_score?.toFixed(1) ?? 0}%`} sub="All time" color="bg-emerald-500/10 text-emerald-400" />
           <StatCard icon={Flame} label="Streak" value={`${analytics?.study_streak ?? 0} days`} sub="Keep it up!" color="bg-amber-500/10 text-amber-400" />
         </div>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
         <GlowCard className="lg:col-span-2">
           <div className="glass-card p-6">
             <div className="flex items-center gap-2 mb-5">
-              <TrendingUp className="w-4 h-4 text-primary" />
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
               <h2 className="font-semibold">Score History</h2>
             </div>
             {loading ? (
@@ -161,7 +161,7 @@ export default function DashboardPage() {
         <div className="glass-card p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-primary" />
+              <BookOpen className="w-4 h-4 text-emerald-400" />
               <h2 className="font-semibold">Recent Documents</h2>
             </div>
             <Link to="/library" className="btn-ghost text-xs">
@@ -178,8 +178,8 @@ export default function DashboardPage() {
                   to={`/study/${doc.id}`}
                   className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/60 transition-all group"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-500/20 to-violet-600/20 border border-sky-500/20 flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="w-4 h-4 text-sky-400" />
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500/20 to-amber-600/20 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>

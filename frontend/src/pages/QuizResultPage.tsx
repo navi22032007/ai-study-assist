@@ -63,8 +63,8 @@ export default function QuizResultPage() {
       {/* Certificate Alert */}
       {(result as any).certificate_token && (
         <GlowCard>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-6 bg-gradient-to-r from-emerald-500/10 to-sky-500/10 border-emerald-500/20 text-center relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-sky-400" />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-6 bg-gradient-to-r from-emerald-500/10 to-emerald-500/10 border-emerald-500/20 text-center relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-400" />
              <Trophy className="w-12 h-12 text-yellow-400 mx-auto mb-3 animate-bounce" />
              <h2 className="text-xl font-bold text-foreground mb-2">Certificate of Mastery Earned!</h2>
              <p className="text-sm text-muted-foreground mb-4">You scored above 80% and earned a verifiable digital credential for "{document_title}".</p>
@@ -82,7 +82,7 @@ export default function QuizResultPage() {
         animate={{ opacity: 1, y: 0 }}
         className="glass-card p-8 text-center"
       >
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium mb-4">
           <Trophy className="w-3 h-3" />
           Quiz Complete
         </div>

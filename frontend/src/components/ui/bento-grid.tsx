@@ -56,7 +56,7 @@ function BentoGrid({ items }: BentoGridProps) {
 
                     <div className="relative flex flex-col space-y-3">
                         <div className="flex items-center justify-between">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10 group-hover:bg-gradient-to-br group-hover:from-sky-500/20 group-hover:to-violet-600/20 transition-all duration-300">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10 group-hover:bg-gradient-to-br group-hover:from-emerald-500/20 group-hover:to-amber-600/20 transition-all duration-300">
                                 {item.icon}
                             </div>
                             <div className="flex items-center space-x-2">

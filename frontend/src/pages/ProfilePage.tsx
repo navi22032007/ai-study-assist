@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { User, Mail, Flame, Trophy, BookOpen, BarChart3, LogOut, Shield, Award, ChevronRight } from 'lucide-react'
+import { 
+  User, Mail, Flame, Trophy, BookOpen, BarChart3, LogOut, 
+  Shield, Award, ChevronRight, Moon, Sun 
+} from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { signOutUser } from '../lib/firebase'
 import { useNavigate, Link } from 'react-router-dom'
@@ -12,16 +15,30 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const [loggingOut, setLoggingOut] = useState(false)
   const [certificates, setCertificates] = useState<any[]>([])
+  const [theme, setTheme] = useState(localStorage.getItem('study_theme') || 'dark')
 
   useEffect(() => {
     getMyCertificates().then(res => setCertificates(res.data)).catch(console.error)
   }, [])
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    localStorage.setItem('study_theme', theme)
+  }, [theme])
 
   const handleLogout = async () => {
     setLoggingOut(true)
     await signOutUser()
     logout()
     navigate('/login')
+  }
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
   }
 
   return (
@@ -39,7 +56,7 @@ export default function ProfilePage() {
               {user?.photo_url ? (
                 <img src={user.photo_url} alt="avatar" className="w-24 h-24 rounded-full ring-4 ring-border mx-auto mb-4" />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500 to-violet-600 flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 to-amber-600 flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
                   {user?.display_name?.charAt(0) || user?.email?.charAt(0) || '?'}
                 </div>
               )}
@@ -57,11 +74,32 @@ export default function ProfilePage() {
             </div>
           </GlowCard>
 
+          {/* Settings */}
+          <GlowCard>
+            <div className="glass-card p-6 space-y-4">
+              <h3 className="font-semibold flex items-center gap-2 text-foreground">
+                 App Settings
+              </h3>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex items-center gap-3">
+                  {theme === 'dark' ? <Moon className="w-4 h-4 text-emerald-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
+                  <span className="text-sm font-medium">Theme Mode</span>
+                </div>
+                <button 
+                  onClick={toggleTheme}
+                  className="relative inline-flex h-6 w-11 items-center rounded-full bg-muted transition-colors focus:outline-none ring-1 ring-border"
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${theme === 'dark' ? 'translate-x-6 bg-emerald-500' : 'translate-x-1 bg-amber-500'}`} />
+                </button>
+              </div>
+            </div>
+          </GlowCard>
+
           {/* Account details */}
           <GlowCard>
             <div className="glass-card p-6 space-y-4">
               <h3 className="font-semibold flex items-center gap-2">
-                <Shield className="w-4 h-4 text-primary" /> Account Details
+                <Shield className="w-4 h-4 text-emerald-400" /> Account Details
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
@@ -130,7 +168,7 @@ export default function ProfilePage() {
                          <span>{new Date(cert.created_at).toLocaleDateString()}</span>
                        </div>
                        
-                       <Link to={`/certificate/${cert.token}`} className="text-sm font-medium text-sky-400 hover:text-sky-300 flex items-center gap-1 group-hover:gap-2 transition-all">
+                       <Link to={`/certificate/${cert.token}`} className="text-sm font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-1 group-hover:gap-2 transition-all">
                          View Credential <ChevronRight className="w-3 h-3" />
                        </Link>
                      </div>

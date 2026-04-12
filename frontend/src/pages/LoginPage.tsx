@@ -30,8 +30,8 @@ export default function LoginPage() {
       
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
       </div>
 
       <motion.div
@@ -43,7 +43,7 @@ export default function LoginPage() {
         <GlowCard className="glass-card p-8 md:p-10 text-center">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-500 to-violet-600 flex items-center justify-center shadow-2xl shadow-sky-500/30">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-amber-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30">
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
           </div>

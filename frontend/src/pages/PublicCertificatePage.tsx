@@ -43,7 +43,7 @@ export default function PublicCertificatePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-12 h-12 text-sky-500 animate-spin" />
+        <Loader2 className="w-12 h-12 text-emerald-500 animate-spin" />
         <p className="text-muted-foreground">Verifying secure credential...</p>
       </div>
     )
@@ -70,12 +70,12 @@ export default function PublicCertificatePage() {
     <div className="min-h-screen bg-background py-10 px-4 sm:px-8 flex flex-col items-center relative overflow-hidden">
       
       {/* Background aesthetic */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-sky-500/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-500/20 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top Bar Navigation */}
       <div className="w-full max-w-[1056px] mx-auto flex items-center justify-between mb-8 z-10">
-        <div className="flex items-center gap-2 text-primary font-bold text-xl tracking-tight">
+        <div className="flex items-center gap-2 text-emerald-400 font-bold text-xl tracking-tight">
           <Award className="w-6 h-6" /> StudyAI
         </div>
         <div className="flex bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-semibold items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.2)]">

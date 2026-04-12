@@ -17,13 +17,13 @@ const steps: Step[] = [
     title: "Welcome to StudyAI",
     description: "Your personalized AI study companion. Let's show you how to transform your documents into smart learning materials.",
     icon: GraduationCap,
-    color: "text-sky-400 bg-sky-500/10"
+    color: "text-emerald-400 bg-emerald-500/10"
   },
   {
     title: "Upload & Organize",
     description: "Start by uploading your PDFs or notes. We'll automatically organize them and prepare them for AI analysis.",
     icon: Upload,
-    color: "text-violet-400 bg-violet-500/10"
+    color: "text-amber-400 bg-amber-500/10"
   },
   {
     title: "Get AI Insights",
@@ -106,7 +106,7 @@ export default function OnboardingTutorial() {
             {/* Progress Bar */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-muted/30">
               <motion.div 
-                className="h-full bg-gradient-to-r from-sky-500 to-violet-600"
+                className="h-full bg-gradient-to-r from-emerald-500 to-amber-600"
                 initial={{ width: 0 }}
                 animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
               />
@@ -160,7 +160,7 @@ export default function OnboardingTutorial() {
                     <div 
                       key={i} 
                       className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                        i === currentStep ? 'w-4 bg-sky-500' : 'bg-muted-foreground/30'
+                        i === currentStep ? 'w-4 bg-emerald-500' : 'bg-muted-foreground/30'
                       }`} 
                     />
                   ))}

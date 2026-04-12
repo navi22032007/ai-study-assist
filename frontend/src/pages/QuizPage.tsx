@@ -148,7 +148,7 @@ export default function QuizPage() {
             key={i}
             onClick={() => setCurrent(i)}
             className={`w-7 h-7 rounded-lg text-xs font-medium transition-all ${
-              i === current ? 'bg-primary text-primary-foreground' :
+              i === current ? 'bg-emerald-500 text-emerald-400-foreground' :
               answers[q.id] ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
               'bg-muted text-muted-foreground hover:bg-muted/80'
             }`}
@@ -170,14 +170,14 @@ export default function QuizPage() {
           <GlowCard>
             <div className="glass-card p-6 space-y-5">
               <div className="flex items-start gap-3">
-                <span className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
                   {current + 1}
                 </span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`tag text-xs border ${
-                      question.type === 'mcq' ? 'bg-sky-500/10 text-sky-400 border-sky-500/20' :
-                      question.type === 'true_false' ? 'bg-violet-500/10 text-violet-400 border-violet-500/20' :
+                      question.type === 'mcq' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                      question.type === 'true_false' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
                       'bg-amber-500/10 text-amber-400 border-amber-500/20'
                     }`}>
                       {question.type === 'mcq' ? 'MCQ' : question.type === 'true_false' ? 'True / False' : 'Fill in Blank'}
@@ -196,7 +196,7 @@ export default function QuizPage() {
                     onClick={() => handleAnswer(question.id, opt)}
                     className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all ${
                       answers[question.id] === opt
-                        ? 'bg-primary/10 border-primary/50 text-primary'
+                        ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
                         : 'bg-muted/30 border-border/50 text-foreground hover:bg-muted/60 hover:border-border'
                     }`}
                   >

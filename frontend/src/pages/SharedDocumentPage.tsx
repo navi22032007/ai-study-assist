@@ -35,7 +35,7 @@ export default function SharedDocumentPage() {
       {/* Nav */}
       <nav className="border-b border-border/50 px-6 py-4 flex items-center justify-between backdrop-blur-xl">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-violet-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-amber-600 flex items-center justify-center">
             <GraduationCap className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold gradient-text">StudyAI</span>
@@ -73,8 +73,8 @@ export default function SharedDocumentPage() {
             <GlowCard>
             <div className="glass-card p-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500/20 to-violet-600/20 border border-sky-500/20 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-6 h-6 text-sky-400" />
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-amber-600/20 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div className="flex-1">
                   <h1 className="text-xl font-bold text-foreground">{doc.title}</h1>
@@ -102,7 +102,7 @@ export default function SharedDocumentPage() {
               <GlowCard>
               <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-4 h-4 text-sky-400" />
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
                   <h2 className="font-semibold">AI Summary</h2>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">{doc.summary}</p>
@@ -115,7 +115,7 @@ export default function SharedDocumentPage() {
               <GlowCard>
               <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Brain className="w-4 h-4 text-violet-400" />
+                  <Brain className="w-4 h-4 text-amber-400" />
                   <h2 className="font-semibold">Key Points</h2>
                 </div>
                 <div className="space-y-3">

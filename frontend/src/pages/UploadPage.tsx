@@ -110,7 +110,7 @@ export default function UploadPage() {
               onDrop={onDrop}
               onClick={() => !file && fileRef.current?.click()}
               className={`glass-card p-10 text-center cursor-pointer transition-all duration-200 ${
-                dragging ? 'border-primary/60 bg-primary/5 scale-[1.01]' : 'hover:border-border hover:bg-muted/20'
+                dragging ? 'border-emerald-500/60 bg-emerald-500/5 scale-[1.01]' : 'hover:border-border hover:bg-muted/20'
               } ${file ? 'cursor-default' : 'cursor-pointer'}`}
             >
               <input
@@ -122,8 +122,8 @@ export default function UploadPage() {
               />
               {file ? (
                 <div className="space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center mx-auto">
-                    <FileText className="w-7 h-7 text-sky-400" />
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
+                    <FileText className="w-7 h-7 text-emerald-400" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{file.name}</p>
@@ -138,8 +138,8 @@ export default function UploadPage() {
                 </div>
               ) : (
                 <>
-                  <div className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center mx-auto mb-4 transition-colors ${dragging ? 'border-primary bg-primary/10' : 'border-border'}`}>
-                    <Upload className={`w-7 h-7 transition-colors ${dragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <div className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center mx-auto mb-4 transition-colors ${dragging ? 'border-emerald-500 bg-emerald-500/10' : 'border-border'}`}>
+                    <Upload className={`w-7 h-7 transition-colors ${dragging ? 'text-emerald-400' : 'text-muted-foreground'}`} />
                   </div>
                   <p className="font-semibold text-foreground mb-1">Drop your file here</p>
                   <p className="text-sm text-muted-foreground">or click to browse · PDF or TXT · max 10MB</p>
@@ -196,7 +196,7 @@ export default function UploadPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-sky-500 to-violet-600 rounded-full"
+                    className="h-full bg-gradient-to-r from-emerald-500 to-amber-600 rounded-full"
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ ease: 'easeOut' }}
