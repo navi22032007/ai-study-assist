@@ -8,6 +8,7 @@ import {
 import { signOutUser } from '../../lib/firebase'
 import { useAuthStore } from '../../store/authStore'
 import { AnimatedGroup } from '@/components/ui/animated-group'
+import OnboardingTutorial from './OnboardingTutorial'
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -161,6 +162,7 @@ export default function AppLayout() {
           </AnimatedGroup>
         </main>
       </div>
+      <OnboardingTutorial />
     </div>
   )
 }
