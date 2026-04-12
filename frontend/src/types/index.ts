@@ -12,6 +12,7 @@ export interface Document {
   key_points?: KeyPoint[]
   flashcards?: Flashcard[]
   mind_map?: MindMap
+  eli5?: string
   share_token?: string
   share_expires_at?: string
   created_at: string

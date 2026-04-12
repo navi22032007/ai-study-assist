@@ -11,7 +11,8 @@
       "Bash('C:\\\\Users\\\\navee\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python310\\\\python.exe' -c ':*)",
       "Bash(where python:*)",
       "Bash('C:/Program Files/Python310/python.exe' -c ':*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('services/gemini_service.py', doraise=True\\); py_compile.compile\\('services/file_service.py', doraise=True\\); print\\('OK'\\)\")"
     ]
   }
 }

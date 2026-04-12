@@ -63,18 +63,25 @@ async def upload_document(
             images = extract_images_from_pdf(file_data)
             print(f"[AI Vision] Extracted {len(images)} images from PDF")
             
-            async def process_diagram(img):
-                try:
-                    result = await gemini_service.analyze_diagram(img["data"], img["mime_type"])
-                    result["image_data"] = f"data:{img['mime_type']};base64,{img['data']}"
-                    result["id"] = str(uuid.uuid4())
-                    result["page"] = img.get("page", 0)
-                    return result
-                except Exception as e:
-                    print(f"[AI Vision] Gemini analysis failed for page {img.get('page')}: {e}")
-                    return None
+            # Quota protection: Limit to first 10 images and use a semaphore
+            MAX_IMAGES = 10
+            images_to_process = images[:MAX_IMAGES]
+            semaphore = asyncio.Semaphore(2) # Only 2 concurrent Gemini calls
             
-            tasks = [process_diagram(img) for img in images]
+            async def process_diagram(img):
+                async with semaphore:
+                    try:
+                        result = await gemini_service.analyze_diagram(img["data"], img["mime_type"])
+                        if result:
+                            result["image_data"] = f"data:{img['mime_type']};base64,{img['data']}"
+                            result["id"] = str(uuid.uuid4())
+                            result["page"] = img.get("page", 0)
+                        return result
+                    except Exception as e:
+                        print(f"[AI Vision] Gemini analysis failed for page {img.get('page')}: {e}")
+                        return None
+            
+            tasks = [process_diagram(img) for img in images_to_process]
             results = await asyncio.gather(*tasks)
             diagrams = [r for r in results if r is not None]
             print(f"[AI Vision] Successfully analyzed {len(diagrams)} diagrams")

@@ -105,7 +105,7 @@ export default function LibraryPage() {
           <p className="text-muted-foreground text-sm mb-5">
             {search ? 'Try a different search term' : 'Upload your first document to get started'}
           </p>
-          {!search && <Link to="/upload" className="btn-primary"><Upload className="w-4 h-4" /> Upload Document</Link>}
+          {!search && null}
         </div>
       ) : (
         <BentoGrid

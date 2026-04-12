@@ -19,11 +19,11 @@ import { Document, KeyPoint, Flashcard, ChatMessage, DiagramAnalysis } from '../
 
 // Sub-components defined inline for brevity
 
-function SummaryTab({ docId }: { docId: string }) {
-  const [summary, setSummary] = useState('')
+function SummaryTab({ docId, initialSummary, initialEli5, onUpdate }: { docId: string, initialSummary: string, initialEli5: string, onUpdate: (data: Partial<Document>) => void }) {
+  const [summary, setSummary] = useState(initialSummary)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [eli5, setEli5] = useState('')
+  const [eli5, setEli5] = useState(initialEli5)
   const [eli5Loading, setEli5Loading] = useState(false)
   const [translation, setTranslation] = useState('')
   const [transLang, setTransLang] = useState('Spanish')
@@ -33,7 +33,9 @@ function SummaryTab({ docId }: { docId: string }) {
     setLoading(true)
     try {
       const res = await generateSummary(docId)
-      setSummary(res.data.summary)
+      const text = res.data.summary
+      setSummary(text)
+      onUpdate({ summary: text })
     } catch(e: any) {
       alert(e.response?.data?.detail || 'Failed to generate summary')
     } finally { setLoading(false) }
@@ -43,7 +45,10 @@ function SummaryTab({ docId }: { docId: string }) {
     setEli5Loading(true)
     try {
       const res = await generateELI5(docId)
-      setEli5(res.data.explanation)
+      const explanation = res.data.explanation
+      setEli5(explanation)
+      // Note: Backend doesn't persist ELI5 in DB, but we keep it in parent state for session persistence
+      onUpdate({ eli5: explanation } as any) 
     } catch(e: any) {
       alert(e.response?.data?.detail || 'Failed')
     } finally { setEli5Loading(false) }
@@ -144,15 +149,17 @@ function SummaryTab({ docId }: { docId: string }) {
   )
 }
 
-function KeyPointsTab({ docId }: { docId: string }) {
-  const [keyPoints, setKeyPoints] = useState<KeyPoint[]>([])
+function KeyPointsTab({ docId, initialPoints, onUpdate }: { docId: string, initialPoints: KeyPoint[], onUpdate: (kp: KeyPoint[]) => void }) {
+  const [keyPoints, setKeyPoints] = useState<KeyPoint[]>(initialPoints)
   const [loading, setLoading] = useState(false)
 
   const generate = async () => {
     setLoading(true)
     try {
       const res = await generateKeyPoints(docId)
-      setKeyPoints(res.data.key_points)
+      const points = res.data.key_points
+      setKeyPoints(points)
+      onUpdate(points)
     } catch(e: any) {
       alert(e.response?.data?.detail || 'Failed')
     } finally { setLoading(false) }
@@ -162,6 +169,7 @@ function KeyPointsTab({ docId }: { docId: string }) {
     const updated = [...keyPoints]
     updated[i] = { ...updated[i], bookmarked: !updated[i].bookmarked }
     setKeyPoints(updated)
+    onUpdate(updated)
     await toggleBookmark(docId, i, updated[i].bookmarked!)
   }
 
@@ -208,8 +216,8 @@ function KeyPointsTab({ docId }: { docId: string }) {
   )
 }
 
-function FlashcardsTab({ docId }: { docId: string }) {
-  const [cards, setCards] = useState<Flashcard[]>([])
+function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initialCards: Flashcard[], onUpdate: (cards: Flashcard[]) => void }) {
+  const [cards, setCards] = useState<Flashcard[]>(initialCards)
   const [loading, setLoading] = useState(false)
   const [flipped, setFlipped] = useState<Record<number, boolean>>({})
   const [count, setCount] = useState(10)
@@ -219,7 +227,9 @@ function FlashcardsTab({ docId }: { docId: string }) {
     setFlipped({})
     try {
       const res = await generateFlashcards(docId, count)
-      setCards(res.data.flashcards)
+      const newCards = res.data.flashcards
+      setCards(newCards)
+      onUpdate(newCards)
     } catch(e: any) {
       alert(e.response?.data?.detail || 'Failed')
     } finally { setLoading(false) }
@@ -284,40 +294,55 @@ function FlashcardsTab({ docId }: { docId: string }) {
   )
 }
 
-function MindMapTab({ docId }: { docId: string }) {
+function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: string, initialNodes: any[], initialEdges: any[], onUpdate: (nodes: Node[], edges: Edge[]) => void }) {
   const [nodes, setNodes] = useState<Node[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
   const [loading, setLoading] = useState(false)
+
+  const nodeTypeStyles: Record<string, any> = {
+    root: { background: 'linear-gradient(135deg,#0ea5e9,#7c3aed)', color: '#fff', border: 'none', borderRadius: 16, padding: '8px 16px', fontWeight: 700 },
+    topic: { background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 12, padding: '6px 12px', fontWeight: 600 },
+    subtopic: { background: 'rgba(124,58,237,0.1)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 8, padding: '4px 10px', fontSize: '12px' },
+  }
+
+  const transform = (rawNodes: any[], rawEdges: any[]) => {
+    const positions = rawNodes.map((_, i) => {
+      const angle = (i / rawNodes.length) * 2 * Math.PI
+      const r = i === 0 ? 0 : i < 4 ? 200 : 380
+      return { x: 400 + r * Math.cos(angle), y: 300 + r * Math.sin(angle) }
+    })
+
+    const finalNodes = rawNodes.map((n: any, i: number) => ({
+      id: n.id, data: { label: n.label || n.data?.label },
+      position: n.position || positions[i],
+      style: n.style || nodeTypeStyles[n.type] || nodeTypeStyles.subtopic,
+    }))
+    
+    const finalEdges = rawEdges.map((e: any) => ({
+      id: e.id, source: e.source, target: e.target,
+      style: { stroke: 'rgba(14,165,233,0.4)', strokeWidth: 2 },
+      animated: true,
+    }))
+
+    return { nodes: finalNodes, edges: finalEdges }
+  }
+
+  useEffect(() => {
+    if (initialNodes.length > 0) {
+      const { nodes: n, edges: e } = transform(initialNodes, initialEdges)
+      setNodes(n)
+      setEdges(e)
+    }
+  }, [initialNodes, initialEdges])
 
   const generate = async () => {
     setLoading(true)
     try {
       const res = await generateMindMap(docId)
-      const rawNodes: any[] = res.data.nodes
-      const rawEdges: any[] = res.data.edges
-
-      const nodeTypeStyles: Record<string, any> = {
-        root: { background: 'linear-gradient(135deg,#0ea5e9,#7c3aed)', color: '#fff', border: 'none', borderRadius: 16, padding: '8px 16px', fontWeight: 700 },
-        topic: { background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 12, padding: '6px 12px', fontWeight: 600 },
-        subtopic: { background: 'rgba(124,58,237,0.1)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 8, padding: '4px 10px', fontSize: '12px' },
-      }
-
-      const positions = rawNodes.map((_, i) => {
-        const angle = (i / rawNodes.length) * 2 * Math.PI
-        const r = i === 0 ? 0 : i < 4 ? 200 : 380
-        return { x: 400 + r * Math.cos(angle), y: 300 + r * Math.sin(angle) }
-      })
-
-      setNodes(rawNodes.map((n: any, i: number) => ({
-        id: n.id, data: { label: n.label },
-        position: positions[i],
-        style: nodeTypeStyles[n.type] || nodeTypeStyles.subtopic,
-      })))
-      setEdges(rawEdges.map((e: any) => ({
-        id: e.id, source: e.source, target: e.target,
-        style: { stroke: 'rgba(14,165,233,0.4)', strokeWidth: 2 },
-        animated: true,
-      })))
+      const { nodes: n, edges: e } = transform(res.data.nodes, res.data.edges)
+      setNodes(n)
+      setEdges(e)
+      onUpdate(n, e)
     } catch(err: any) {
       alert(err.response?.data?.detail || 'Failed')
     } finally { setLoading(false) }
@@ -690,7 +715,7 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
         </div>
         <div>
           <h2 className="text-lg font-bold">AI Vision Analysis</h2>
-          <p className="text-xs text-muted-foreground">{diagrams.length} diagram{diagrams.length > 1 ? 's' : ''} detected and analysed by Gemini Vision</p>
+          <p className="text-xs text-muted-foreground">{diagrams.length} visual{diagrams.length > 1 ? 's' : ''} detected and analysed by Gemini Vision</p>
         </div>
       </div>
 
@@ -708,7 +733,7 @@ function DiagramsTab({ diagrams, docId, onDiagramsLoaded }: { diagrams: DiagramA
                   <img src={diagram.image_data} alt={diagram.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] uppercase tracking-widest text-violet-400 font-bold">Diagram {idx + 1}</span>
+                  <span className="text-[10px] uppercase tracking-widest text-violet-400 font-bold">Visual {idx + 1}</span>
                   <h3 className="font-semibold text-foreground mt-0.5 truncate">{diagram.title}</h3>
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{diagram.explanation.substring(0, 120)}...</p>
                 </div>
@@ -953,10 +978,36 @@ export default function StudyViewPage() {
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
         >
-          {activeTab === 'summary' && <SummaryTab docId={documentId!} />}
-          {activeTab === 'keypoints' && <KeyPointsTab docId={documentId!} />}
-          {activeTab === 'flashcards' && <FlashcardsTab docId={documentId!} />}
-          {activeTab === 'mindmap' && <MindMapTab docId={documentId!} />}
+          {activeTab === 'summary' && (
+            <SummaryTab 
+              docId={documentId!} 
+              initialSummary={doc.summary || ''} 
+              initialEli5={(doc as any).eli5 || ''}
+              onUpdate={(data) => setDoc(prev => prev ? { ...prev, ...data } : prev)} 
+            />
+          )}
+          {activeTab === 'keypoints' && (
+            <KeyPointsTab 
+              docId={documentId!} 
+              initialPoints={doc.key_points || []} 
+              onUpdate={(kp) => setDoc(prev => prev ? { ...prev, key_points: kp } : prev)} 
+            />
+          )}
+          {activeTab === 'flashcards' && (
+            <FlashcardsTab 
+              docId={documentId!} 
+              initialCards={doc.flashcards || []} 
+              onUpdate={(cards) => setDoc(prev => prev ? { ...prev, flashcards: cards } : prev)} 
+            />
+          )}
+          {activeTab === 'mindmap' && (
+            <MindMapTab 
+              docId={documentId!} 
+              initialNodes={(doc.mind_map as any)?.nodes || []} 
+              initialEdges={(doc.mind_map as any)?.edges || []} 
+              onUpdate={(n, e) => setDoc(prev => prev ? { ...prev, mind_map: { nodes: n, edges: e } as any } : prev)} 
+            />
+          )}
           {activeTab === 'chat' && <ChatTab docId={documentId!} />}
           {activeTab === 'diagrams' && <DiagramsTab diagrams={doc?.diagrams || []} docId={documentId!} onDiagramsLoaded={(d) => setDoc(prev => prev ? { ...prev, diagrams: d } : prev)} />}
           {activeTab === 'voice' && <VoiceTutorTab docId={documentId!} />}

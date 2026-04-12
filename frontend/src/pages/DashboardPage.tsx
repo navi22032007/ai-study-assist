@@ -193,9 +193,7 @@ export default function DashboardPage() {
             <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
               <BookOpen className="w-10 h-10 mb-3 opacity-30" />
               <p className="text-sm mb-4">No documents yet. Upload your first one!</p>
-              <Link to="/upload" className="btn-primary text-xs px-4 py-2">
-                <Upload className="w-3.5 h-3.5" /> Upload Document
-              </Link>
+              {null}
             </div>
           )}
         </div>

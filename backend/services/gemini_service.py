@@ -5,11 +5,38 @@ import re
 import uuid
 from typing import List, Optional, Any
 
+import asyncio
+import time
+from google.api_core import exceptions
+
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+def retry_gemini(func):
+    """Decorator to retry Gemini API calls with exponential backoff."""
+    async def wrapper(*args, **kwargs):
+        max_retries = 3
+        backoff = 2
+        for i in range(max_retries):
+            try:
+                # Add a small delay between requests even if they succeed to avoid burst limits
+                # but only if it's not the first one in a burst
+                return await func(*args, **kwargs)
+            except Exception as e:
+                # Check for 429 Quota Exceeded
+                if "429" in str(e) or "quota" in str(e).lower():
+                    if i == max_retries - 1:
+                        raise e
+                    wait_time = backoff ** (i + 1)
+                    print(f"[Gemini] Quota hit, retrying in {wait_time}s... (Attempt {i+1}/{max_retries})")
+                    await asyncio.sleep(wait_time)
+                else:
+                    raise e
+    return wrapper
+
 def get_model():
+    # Using gemini-2.5-flash-lite which is confirmed available in the model list.
     return genai.GenerativeModel(
-        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
         generation_config=genai.GenerationConfig(
             temperature=0.3,
             top_p=0.9,
@@ -19,7 +46,7 @@ def get_model():
 
 def get_json_model():
     return genai.GenerativeModel(
-        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
         generation_config=genai.GenerationConfig(
             temperature=0.3,
             top_p=0.9,
@@ -66,6 +93,7 @@ DOCUMENT CONTENT:
 
 """
 
+@retry_gemini
 async def generate_summary(document_text: str) -> str:
     model = get_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + """
@@ -75,7 +103,9 @@ Generate a concise summary of the document in EXACTLY 200 words or fewer.
 - Do NOT use bullet points
 - Return ONLY the summary text, nothing else
 """
-    response = model.generate_content(prompt)
+    # model.generate_content is not async, so we'll treat it as such for now or use run_in_executor
+    # but since this is called within async functions, we should ideally use the async version
+    response = await model.generate_content_async(prompt)
     summary = response.text.strip()
     
     # Enforce 200 word limit
@@ -85,6 +115,7 @@ Generate a concise summary of the document in EXACTLY 200 words or fewer.
     
     return summary
 
+@retry_gemini
 async def generate_key_points(document_text: str) -> List[dict]:
     model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + """
@@ -96,7 +127,7 @@ Return ONLY a valid JSON array with NO other text. Format:
 ]
 importance_level must be: "high", "medium", or "low"
 """
-    response = model.generate_content(prompt)
+    response = await model.generate_content_async(prompt)
     data = safe_json_parse(response.text)
     
     if not isinstance(data, list):
@@ -113,6 +144,7 @@ importance_level must be: "high", "medium", or "low"
         })
     return result
 
+@retry_gemini
 async def generate_flashcards(document_text: str, count: int = 10) -> List[dict]:
     model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + f"""
@@ -123,7 +155,7 @@ Return ONLY a valid JSON array with NO other text. Format:
   ...
 ]
 """
-    response = model.generate_content(prompt)
+    response = await model.generate_content_async(prompt)
     data = safe_json_parse(response.text)
     
     if not isinstance(data, list):
@@ -131,6 +163,7 @@ Return ONLY a valid JSON array with NO other text. Format:
     
     return [{"front": str(f.get("front", "")), "back": str(f.get("back", "")), "topic": str(f.get("topic", "General"))} for f in data[:count]]
 
+@retry_gemini
 async def generate_quiz(document_text: str, count: int = 10, difficulty: str = "medium", question_types: Optional[List[str]] = None) -> List[dict]:
     model = get_json_model()
     
@@ -179,7 +212,7 @@ Return ONLY a valid JSON array with NO other text. Format:
 ]
 All answers must be grounded in the document content only.
 """
-    response = model.generate_content(prompt)
+    response = await model.generate_content_async(prompt)
     data = safe_json_parse(response.text)
     
     if not isinstance(data, list):
@@ -198,6 +231,7 @@ All answers must be grounded in the document content only.
         })
     return result
 
+@retry_gemini
 async def chat_with_document(document_text: str, message: str, history: List[dict]) -> str:
     model = get_model()
     
@@ -215,9 +249,10 @@ Current question: {message}
 Answer ONLY based on the document content. Be helpful, clear and concise.
 If the question is not answerable from the document, say so explicitly.
 """
-    response = model.generate_content(prompt)
+    response = await model.generate_content_async(prompt)
     return response.text.strip()
 
+@retry_gemini
 async def generate_eli5(document_text: str, topic: Optional[str] = None) -> str:
     model = get_model()
     topic_instruction = f"Focus on explaining: {topic}" if topic else "Explain the main concept"
@@ -228,9 +263,10 @@ Use simple words, fun analogies, and relatable comparisons.
 Keep it engaging and under 150 words.
 Base your explanation ONLY on what's in the document.
 """
-    response = model.generate_content(prompt)
+    response = await model.generate_content_async(prompt)
     return response.text.strip()
 
+@retry_gemini
 async def translate_content(content: str, target_language: str) -> str:
     model = get_model()
     prompt = f"""Translate the following text to {target_language}.
@@ -240,9 +276,10 @@ Return ONLY the translated text.
 TEXT TO TRANSLATE:
 {content}
 """
-    response = model.generate_content(prompt)
+    response = await model.generate_content_async(prompt)
     return response.text.strip()
 
+@retry_gemini
 async def generate_mind_map(document_text: str) -> dict:
     model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:12000]) + """
@@ -261,7 +298,7 @@ Return ONLY a valid JSON object with NO other text. Format:
 }
 Create 1 root, 3-6 topic nodes, and 2-4 subtopic nodes per topic.
 """
-    response = model.generate_content(prompt)
+    response = await model.generate_content_async(prompt)
     data = safe_json_parse(response.text)
     return data
 
@@ -286,15 +323,28 @@ async def detect_weak_topics(quiz_results: List[dict]) -> List[str]:
     
     return weak
 
+@retry_gemini
 async def analyze_diagram(image_b64: str, mime_type: str) -> dict:
-    """Analyze a diagram/image using Gemini Vision multimodal capability."""
+    """Analyze a diagram/image using Gemini Vision multimodal capability.
+    Combines classification and analysis into a single request to save quota.
+    """
+    image_part = {
+        "mime_type": mime_type,
+        "data": image_b64
+    }
+
     model = get_json_model()
-    prompt = """
-Analyze this educational image (diagram, chart, graph, map, table, or figure).
-Return a JSON object with this exact schema:
+    # Optimized prompt to do everything in one go
+    prompt = """Look at this image and analyze it for an educational study assistant.
+Step 1: Determine if this is a "diagram" (chart, graph, flowchart, table, map, illustration, infographic) or a "text_document" (mostly just written words).
+Step 2: If it's a "text_document", set is_diagram to false.
+Step 3: If it's a "diagram", provide a detailed analysis.
+
+Return ONLY a JSON object with this exact schema:
 {
-  "title": "A short, clear title describing the image",
-  "explanation": "A detailed plain-language explanation of what this image shows and teaches, like a tutor explaining it to a student",
+  "is_diagram": boolean,
+  "title": "A short, clear title describing the image (if it's a diagram)",
+  "explanation": "A detailed plain-language explanation of what this image shows (if it's a diagram)",
   "components": ["Key label 1", "Key label 2", "Important part 3"],
   "quiz_questions": [
     {
@@ -309,14 +359,16 @@ Return a JSON object with this exact schema:
     }
   ]
 }
-Include exactly 2 quiz questions based ONLY on what can be visually deduced from the image.
+
+Rules:
+- If is_diagram is false, other fields can be null or empty.
+- Include exactly 2 quiz questions for diagrams based ONLY on visual content.
 """
-    
-    image_part = {
-        "mime_type": mime_type,
-        "data": image_b64
-    }
-    
-    response = model.generate_content([prompt, image_part])
+
+    response = await model.generate_content_async([prompt, image_part])
     data = safe_json_parse(response.text)
+    
+    if not data.get("is_diagram", False):
+        return None
+        
     return data

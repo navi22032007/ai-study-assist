@@ -63,14 +63,25 @@ def extract_images_from_pdf(file_data: bytes) -> List[dict]:
         max_pages = min(len(doc), 5)
         for page_num in range(max_pages):
             page = doc[page_num]
-            # Check if page has any visual content beyond just text
+
+            # Check if page has visual content beyond just text
             text_len = len(page.get_text("text").strip())
-            
+            has_drawings = len(page.get_drawings()) > 0
+            has_images = len(page.get_images(full=True)) > 0
+
+            # Skip pages that are primarily text with no visual elements
+            if text_len > 200 and not has_drawings and not has_images:
+                continue
+
+            # Skip pages that are nearly empty
+            if text_len < 10 and not has_drawings and not has_images:
+                continue
+
             # Render page at 2x zoom for high quality
             mat = fitz.Matrix(2.0, 2.0)
             pix = page.get_pixmap(matrix=mat, alpha=False)
             img_bytes = pix.tobytes("png")
-            
+
             if len(img_bytes) > 10 * 1024:  # > 10KB (skip near-blank pages)
                 b64 = base64.b64encode(img_bytes).decode('utf-8')
                 images_result.append({
