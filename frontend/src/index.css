@@ -58,7 +58,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased cursor-none;
     background-image: 
       radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
       radial-gradient(ellipse at 80% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),

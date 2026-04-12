@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { LiquidCursor } from './components/ui/liquid-cursor'
 import { onAuthStateChanged } from './lib/firebase'
 import { verifyFirebaseToken } from './lib/api'
 import { useAuthStore } from './store/authStore'
@@ -48,6 +49,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <LiquidCursor size={44} />
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />

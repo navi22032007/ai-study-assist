@@ -12,7 +12,8 @@
       "Bash(where python:*)",
       "Bash('C:/Program Files/Python310/python.exe' -c ':*)",
       "Bash(npx vite:*)",
-      "Bash(python -c \"import py_compile; py_compile.compile\\('services/gemini_service.py', doraise=True\\); py_compile.compile\\('services/file_service.py', doraise=True\\); print\\('OK'\\)\")"
+      "Bash(python -c \"import py_compile; py_compile.compile\\('services/gemini_service.py', doraise=True\\); py_compile.compile\\('services/file_service.py', doraise=True\\); print\\('OK'\\)\")",
+      "Bash(npm install:*)"
     ]
   }
 }
