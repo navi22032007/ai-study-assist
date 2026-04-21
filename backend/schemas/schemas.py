@@ -207,6 +207,8 @@ class UserInfo(BaseModel):
     email: str
     display_name: Optional[str] = None
     photo_url: Optional[str] = None
+    xp_points: int = 0
+    study_streak: int = 0
 
 class AuthResponse(BaseModel):
     user: UserInfo

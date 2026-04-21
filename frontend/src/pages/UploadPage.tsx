@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { GlowCard } from '@/components/ui/spotlight-card'
 
-const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_SIZE = 50 * 1024 * 1024 // 50MB
 
 export default function UploadPage() {
   const [dragging, setDragging] = useState(false)
@@ -22,9 +22,18 @@ export default function UploadPage() {
   const navigate = useNavigate()
 
   const validateFile = (f: File): string => {
-    if (f.size > MAX_SIZE) return `File too large (${(f.size / 1024 / 1024).toFixed(1)}MB). Max is 10MB.`
-    if (!['application/pdf', 'text/plain'].includes(f.type) && !f.name.match(/\.(pdf|txt)$/i)) {
-      return 'Only PDF and TXT files are supported.'
+    if (f.size > MAX_SIZE) return `File too large (${(f.size / 1024 / 1024).toFixed(1)}MB). Max is 50MB.`
+    const allowedExtensions = /\.(pdf|txt|docx|pptx|doc|ppt)$/i;
+    const allowedMimeTypes = [
+      'application/pdf', 
+      'text/plain', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/msword',
+      'application/vnd.ms-powerpoint'
+    ];
+    if (!allowedMimeTypes.includes(f.type) && !f.name.match(allowedExtensions)) {
+      return 'Supported formats: PDF, DOCX, PPTX, TXT.'
     }
     return ''
   }
@@ -34,7 +43,7 @@ export default function UploadPage() {
     if (err) { setError(err); return }
     setError('')
     setFile(f)
-    if (!title) setTitle(f.name.replace(/\.(pdf|txt)$/i, ''))
+    if (!title) setTitle(f.name.replace(/\.(pdf|txt|docx|pptx|doc|ppt)$/i, ''))
   }
 
   const onDrop = useCallback((e: React.DragEvent) => {
@@ -75,7 +84,7 @@ export default function UploadPage() {
     <AnimatedGroup preset="blur-slide" className="p-6 max-w-2xl mx-auto">
       <div className="mb-8">
         <h1 className="page-title gradient-text">Upload Document</h1>
-        <p className="text-muted-foreground mt-2">Upload a PDF or TXT file to start studying with AI</p>
+        <p className="text-muted-foreground mt-2">PDF, DOCX, PPTX, or TXT • Up to 50MB</p>
       </div>
 
       <AnimatePresence mode="wait">
@@ -110,24 +119,24 @@ export default function UploadPage() {
               onDrop={onDrop}
               onClick={() => !file && fileRef.current?.click()}
               className={`glass-card p-10 text-center cursor-pointer transition-all duration-200 ${
-                dragging ? 'border-emerald-500/60 bg-emerald-500/5 scale-[1.01]' : 'hover:border-border hover:bg-muted/20'
+                dragging ? 'border-primary/60 bg-primary/5 scale-[1.01]' : 'hover:border-border hover:bg-muted/20'
               } ${file ? 'cursor-default' : 'cursor-pointer'}`}
             >
               <input
                 ref={fileRef}
                 type="file"
-                accept=".pdf,.txt"
+                accept=".pdf,.txt,.docx,.pptx,.doc,.ppt"
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
               />
               {file ? (
                 <div className="space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
-                    <FileText className="w-7 h-7 text-emerald-400" />
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
+                    <FileText className="w-7 h-7 text-primary" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{file.name}</p>
-                    <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
+                    <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setFile(null); setTitle('') }}
@@ -138,11 +147,11 @@ export default function UploadPage() {
                 </div>
               ) : (
                 <>
-                  <div className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center mx-auto mb-4 transition-colors ${dragging ? 'border-emerald-500 bg-emerald-500/10' : 'border-border'}`}>
-                    <Upload className={`w-7 h-7 transition-colors ${dragging ? 'text-emerald-400' : 'text-muted-foreground'}`} />
+                  <div className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center mx-auto mb-4 transition-colors ${dragging ? 'border-primary bg-primary/10' : 'border-border'}`}>
+                    <Upload className={`w-7 h-7 transition-colors ${dragging ? 'text-primary' : 'text-muted-foreground'}`} />
                   </div>
                   <p className="font-semibold text-foreground mb-1">Drop your file here</p>
-                  <p className="text-sm text-muted-foreground">or click to browse · PDF or TXT · max 10MB</p>
+                  <p className="text-sm text-muted-foreground">or click to browse · PDF, DOCX, PPTX, TXT · max 50MB</p>
                 </>
               )}
             </div>

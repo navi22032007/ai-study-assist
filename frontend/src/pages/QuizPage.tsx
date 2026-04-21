@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Clock, ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react'
+import { Clock, ChevronLeft, ChevronRight, CheckCircle, Loader2 } from 'lucide-react'
 import { getQuiz, submitQuiz } from '../lib/api'
 import { Quiz, QuizQuestion, QuizAnswer } from '../types'
 import { GlowCard } from '@/components/ui/spotlight-card'
@@ -111,10 +111,17 @@ export default function QuizPage() {
   }, [quiz])
 
   if (loading) return (
-    <div className="p-6 max-w-3xl mx-auto space-y-4">
-      <div className="skeleton h-8 w-64 rounded-xl" />
-      <div className="skeleton h-4 rounded-xl" />
-      <div className="skeleton h-80 rounded-2xl" />
+    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center p-6 transition-all duration-700">
+      <div className="max-w-md w-full space-y-8 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 blur-[100px] rounded-full animate-pulse" />
+          <Loader2 className="w-16 h-16 text-emerald-400 animate-spin mx-auto relative z-10" />
+        </div>
+        <div className="space-y-3 relative z-10">
+          <h2 className="text-2xl font-bold text-white tracking-tight">Preparing your Quiz</h2>
+          <p className="text-emerald-400/60 text-sm font-medium animate-pulse">Generating context-aware questions...</p>
+        </div>
+      </div>
     </div>
   )
 

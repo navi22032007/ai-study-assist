@@ -13,14 +13,13 @@ function FloatingPaths({ position }: { position: number }) {
         } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
             684 - i * 5 * position
         } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
-        color: `rgba(16, 185, 129, ${0.1 + i * 0.03})`,
         width: 0.5 + i * 0.03,
     }));
 
     return (
         <div className="absolute inset-0 pointer-events-none">
             <svg
-                className="w-full h-full text-white"
+                className="w-full h-full text-black/50 dark:text-white/40"
                 viewBox="0 0 696 316"
                 fill="none"
             >
@@ -31,15 +30,14 @@ function FloatingPaths({ position }: { position: number }) {
                         d={path.d}
                         stroke="currentColor"
                         strokeWidth={path.width}
-                        strokeOpacity={0.1 + path.id * 0.03}
-                        initial={{ pathLength: 0.3, opacity: 0.6 }}
+                        initial={{ pathLength: 0.3, opacity: 0.1 }}
                         animate={{
                             pathLength: 1,
                             opacity: [0.3, 0.6, 0.3],
                             pathOffset: [0, 1, 0],
                         }}
                         transition={{
-                            duration: 20 + Math.random() * 10,
+                            duration: 25 + Math.random() * 10,
                             repeat: Number.POSITIVE_INFINITY,
                             ease: "linear",
                         }}
@@ -75,7 +73,7 @@ export function BackgroundPaths({
                     transition={{ duration: 2 }}
                     className="max-w-4xl mx-auto"
                 >
-                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-8 tracking-widest">
+                    <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-10 tracking-tight">
                         {words.map((word, wordIndex) => (
                             <span
                                 key={wordIndex}
@@ -94,8 +92,7 @@ export function BackgroundPaths({
                                             stiffness: 150,
                                             damping: 25,
                                         }}
-                                        className="inline-block text-transparent bg-clip-text
-                                        bg-gradient-to-r from-white to-white/80"
+                                        className="inline-block text-black dark:text-white"
                                     >
                                         {letter}
                                     </motion.span>
@@ -108,7 +105,7 @@ export function BackgroundPaths({
                         <LiquidButton
                             onClick={onButtonClick}
                             size="xxl"
-                            className="text-lg font-semibold text-white"
+                            className="text-lg font-semibold text-black dark:text-white"
                         >
                             <span className="flex items-center gap-3">
                                 {buttonText}

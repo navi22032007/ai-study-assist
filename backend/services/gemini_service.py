@@ -1,15 +1,14 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import json
 import re
 import uuid
 from typing import List, Optional, Any
-
 import asyncio
-import time
-from google.api_core import exceptions
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Initialize Global Client
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def retry_gemini(func):
     """Decorator to retry Gemini API calls with exponential backoff."""
@@ -18,11 +17,8 @@ def retry_gemini(func):
         backoff = 2
         for i in range(max_retries):
             try:
-                # Add a small delay between requests even if they succeed to avoid burst limits
-                # but only if it's not the first one in a burst
                 return await func(*args, **kwargs)
             except Exception as e:
-                # Check for 429 Quota Exceeded
                 if "429" in str(e) or "quota" in str(e).lower():
                     if i == max_retries - 1:
                         raise e
@@ -33,37 +29,16 @@ def retry_gemini(func):
                     raise e
     return wrapper
 
-def get_model():
-    # Using gemini-2.5-flash-lite which is confirmed available in the model list.
-    return genai.GenerativeModel(
-        "gemini-2.5-flash-lite",
-        generation_config=genai.GenerationConfig(
-            temperature=0.3,
-            top_p=0.9,
-            max_output_tokens=4096,
-        )
-    )
-
-def get_json_model():
-    return genai.GenerativeModel(
-        "gemini-2.5-flash-lite",
-        generation_config=genai.GenerationConfig(
-            temperature=0.3,
-            top_p=0.9,
-            max_output_tokens=8192,
-            response_mime_type="application/json"
-        )
-    )
+# Default model name
+MODEL_NAME = "gemini-2.5-flash-lite"
 
 def safe_json_parse(text: str) -> Any:
     """Parse JSON with fallback cleanup."""
-    # Try direct parse
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
     
-    # Try extracting JSON from markdown code block
     match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
     if match:
         try:
@@ -71,7 +46,6 @@ def safe_json_parse(text: str) -> Any:
         except json.JSONDecodeError:
             pass
     
-    # Try extracting array or object
     for pattern in [r"(\[[\s\S]*\])", r"(\{[\s\S]*\})"]:
         match = re.search(pattern, text)
         if match:
@@ -95,7 +69,6 @@ DOCUMENT CONTENT:
 
 @retry_gemini
 async def generate_summary(document_text: str) -> str:
-    model = get_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + """
 Generate a concise summary of the document in EXACTLY 200 words or fewer.
 - Focus on the main concepts, arguments, and conclusions
@@ -103,12 +76,17 @@ Generate a concise summary of the document in EXACTLY 200 words or fewer.
 - Do NOT use bullet points
 - Return ONLY the summary text, nothing else
 """
-    # model.generate_content is not async, so we'll treat it as such for now or use run_in_executor
-    # but since this is called within async functions, we should ideally use the async version
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            top_p=0.9,
+            max_output_tokens=4096,
+        )
+    )
     summary = response.text.strip()
     
-    # Enforce 200 word limit
     words = summary.split()
     if len(words) > 200:
         summary = " ".join(words[:200]) + "..."
@@ -117,7 +95,6 @@ Generate a concise summary of the document in EXACTLY 200 words or fewer.
 
 @retry_gemini
 async def generate_key_points(document_text: str) -> List[dict]:
-    model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + """
 Extract 5-10 key points from the document.
 Return ONLY a valid JSON array with NO other text. Format:
@@ -127,13 +104,21 @@ Return ONLY a valid JSON array with NO other text. Format:
 ]
 importance_level must be: "high", "medium", or "low"
 """
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            top_p=0.9,
+            max_output_tokens=8192,
+            response_mime_type="application/json"
+        )
+    )
     data = safe_json_parse(response.text)
     
     if not isinstance(data, list):
         raise ValueError("Expected list of key points")
     
-    # Validate and normalize
     result = []
     for item in data:
         result.append({
@@ -146,7 +131,6 @@ importance_level must be: "high", "medium", or "low"
 
 @retry_gemini
 async def generate_flashcards(document_text: str, count: int = 10) -> List[dict]:
-    model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:15000]) + f"""
 Create exactly {count} flashcards from the document content.
 Return ONLY a valid JSON array with NO other text. Format:
@@ -155,7 +139,16 @@ Return ONLY a valid JSON array with NO other text. Format:
   ...
 ]
 """
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            top_p=0.9,
+            max_output_tokens=8192,
+            response_mime_type="application/json"
+        )
+    )
     data = safe_json_parse(response.text)
     
     if not isinstance(data, list):
@@ -165,8 +158,6 @@ Return ONLY a valid JSON array with NO other text. Format:
 
 @retry_gemini
 async def generate_quiz(document_text: str, count: int = 10, difficulty: str = "medium", question_types: Optional[List[str]] = None) -> List[dict]:
-    model = get_json_model()
-    
     types_instruction = ""
     if question_types:
         types_instruction = f"Question types to include: {', '.join(question_types)}."
@@ -194,25 +185,30 @@ Return ONLY a valid JSON array with NO other text. Format:
     "topic": "topic from document"
   }},
   {{
-    "question": "True or false: statement",
+    "question": "True or False statement",
     "type": "true_false",
     "options": ["True", "False"],
     "correct_answer": "True",
-    "explanation": "Explanation",
-    "topic": "topic"
-  }},
-  {{
-    "question": "The ___ is responsible for...",
-    "type": "fill_blank",
-    "options": null,
-    "correct_answer": "correct word",
-    "explanation": "Explanation",
-    "topic": "topic"
+    "explanation": "...",
+    "topic": "..."
   }}
 ]
-All answers must be grounded in the document content only.
+Rules:
+1. For 'mcq', provide exactly 4 options.
+2. For 'true_false', provide EXACTLY ["True", "False"] in the 'options' field.
+3. For 'fill_blank', the 'options' field should be null or omitted.
+4. All answers must be grounded in the document content only.
 """
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            top_p=0.9,
+            max_output_tokens=8192,
+            response_mime_type="application/json"
+        )
+    )
     data = safe_json_parse(response.text)
     
     if not isinstance(data, list):
@@ -220,11 +216,18 @@ All answers must be grounded in the document content only.
     
     result = []
     for q in data[:count]:
+        q_type = q.get("type", "mcq")
+        options = q.get("options")
+        
+        # Ensure true_false always has options
+        if q_type == "true_false" and not options:
+            options = ["True", "False"]
+            
         result.append({
             "id": str(uuid.uuid4()),
             "question": str(q.get("question", "")),
-            "type": q.get("type", "mcq"),
-            "options": q.get("options"),
+            "type": q_type,
+            "options": options,
             "correct_answer": str(q.get("correct_answer", "")),
             "explanation": str(q.get("explanation", "")),
             "topic": str(q.get("topic", "General"))
@@ -233,10 +236,8 @@ All answers must be grounded in the document content only.
 
 @retry_gemini
 async def chat_with_document(document_text: str, message: str, history: List[dict]) -> str:
-    model = get_model()
-    
     history_text = ""
-    for msg in history[-6:]:  # last 3 turns
+    for msg in history[-6:]:
         role = "User" if msg["role"] == "user" else "Assistant"
         history_text += f"{role}: {msg['content']}\n"
     
@@ -247,28 +248,39 @@ Previous conversation:
 Current question: {message}
 
 Answer ONLY based on the document content. Be helpful, clear and concise.
-If the question is not answerable from the document, say so explicitly.
 """
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            top_p=0.9,
+            max_output_tokens=4096,
+        )
+    )
     return response.text.strip()
 
 @retry_gemini
 async def generate_eli5(document_text: str, topic: Optional[str] = None) -> str:
-    model = get_model()
     topic_instruction = f"Focus on explaining: {topic}" if topic else "Explain the main concept"
     
     prompt = GROUNDING_PREFIX.format(content=document_text[:10000]) + f"""
 {topic_instruction} from this document as if explaining to a 5-year-old child.
 Use simple words, fun analogies, and relatable comparisons.
-Keep it engaging and under 150 words.
-Base your explanation ONLY on what's in the document.
 """
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            top_p=0.9,
+            max_output_tokens=2048,
+        )
+    )
     return response.text.strip()
 
 @retry_gemini
 async def translate_content(content: str, target_language: str) -> str:
-    model = get_model()
     prompt = f"""Translate the following text to {target_language}.
 Keep all meaning intact. Preserve formatting.
 Return ONLY the translated text.
@@ -276,34 +288,35 @@ Return ONLY the translated text.
 TEXT TO TRANSLATE:
 {content}
 """
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            max_output_tokens=8192,
+        )
+    )
     return response.text.strip()
 
 @retry_gemini
 async def generate_mind_map(document_text: str) -> dict:
-    model = get_json_model()
     prompt = GROUNDING_PREFIX.format(content=document_text[:12000]) + """
 Create a mind map structure from the document content.
-Return ONLY a valid JSON object with NO other text. Format:
-{
-  "nodes": [
-    {"id": "root", "label": "Main Topic", "type": "root"},
-    {"id": "n1", "label": "Subtopic 1", "type": "topic"},
-    {"id": "n2", "label": "Detail", "type": "subtopic"}
-  ],
-  "edges": [
-    {"id": "e1", "source": "root", "target": "n1"},
-    {"id": "e2", "source": "n1", "target": "n2"}
-  ]
-}
-Create 1 root, 3-6 topic nodes, and 2-4 subtopic nodes per topic.
+Return ONLY a valid JSON object.
 """
-    response = await model.generate_content_async(prompt)
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            max_output_tokens=8192,
+            response_mime_type="application/json"
+        )
+    )
     data = safe_json_parse(response.text)
     return data
 
 async def detect_weak_topics(quiz_results: List[dict]) -> List[str]:
-    """Detect weak topics from quiz history."""
     topic_scores = {}
     for result in quiz_results:
         for qr in result.get("question_results", []):
@@ -318,9 +331,8 @@ async def detect_weak_topics(quiz_results: List[dict]) -> List[str]:
     for topic, scores in topic_scores.items():
         if scores["total"] > 0:
             accuracy = scores["correct"] / scores["total"]
-            if accuracy < 0.6:  # Below 60% accuracy
+            if accuracy < 0.6:
                 weak.append(topic)
-    
     return weak
 
 @retry_gemini
@@ -328,12 +340,11 @@ async def analyze_diagram(image_b64: str, mime_type: str) -> dict:
     """Analyze a diagram/image using Gemini Vision multimodal capability.
     Combines classification and analysis into a single request to save quota.
     """
-    image_part = {
-        "mime_type": mime_type,
-        "data": image_b64
-    }
+    image_part = types.Part.from_bytes(
+        data=image_b64,
+        mime_type=mime_type
+    )
 
-    model = get_json_model()
     # Optimized prompt to do everything in one go
     prompt = """Look at this image and analyze it for an educational study assistant.
 Step 1: Determine if this is a "diagram" (chart, graph, flowchart, table, map, illustration, infographic) or a "text_document" (mostly just written words).
@@ -365,7 +376,14 @@ Rules:
 - Include exactly 2 quiz questions for diagrams based ONLY on visual content.
 """
 
-    response = await model.generate_content_async([prompt, image_part])
+    response = await client.aio.models.generate_content(
+        model=MODEL_NAME,
+        contents=[prompt, image_part],
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            response_mime_type="application/json"
+        )
+    )
     data = safe_json_parse(response.text)
     
     if not data.get("is_diagram", False):

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Sparkles, BookOpen, Brain, MessageSquare, Map,
-  Languages, Zap, Download, Share2, ChevronLeft, Loader2,
+  Languages, Zap, Download, Share2, ChevronLeft, ChevronRight, Loader2,
   Copy, Check, Globe, RotateCcw, Trash2, Mic, MicOff, Volume2, AudioLines, Eye, ChevronDown, ChevronUp, CheckCircle, XCircle
 } from 'lucide-react'
 import { AnimatedGroup } from '@/components/ui/animated-group'
@@ -219,12 +219,15 @@ function KeyPointsTab({ docId, initialPoints, onUpdate }: { docId: string, initi
 function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initialCards: Flashcard[], onUpdate: (cards: Flashcard[]) => void }) {
   const [cards, setCards] = useState<Flashcard[]>(initialCards)
   const [loading, setLoading] = useState(false)
-  const [flipped, setFlipped] = useState<Record<number, boolean>>({})
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [flipped, setFlipped] = useState(false)
   const [count, setCount] = useState(10)
+  const [direction, setDirection] = useState(0) // 0: left, 1: right, 2: top, 3: bottom
 
   const generate = async () => {
     setLoading(true)
-    setFlipped({})
+    setFlipped(false)
+    setCurrentIndex(0)
     try {
       const res = await generateFlashcards(docId, count)
       const newCards = res.data.flashcards
@@ -235,10 +238,50 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
     } finally { setLoading(false) }
   }
 
-  return (
-    <div className="space-y-4">
-      {cards.length === 0 ? (
-        <GlowCard>
+  const navigate = (newIndex: number) => {
+    // Random direction for the next card to pop up from
+    setDirection(Math.floor(Math.random() * 4))
+    setCurrentIndex(newIndex)
+    setFlipped(false)
+  }
+
+  const cardVariants = {
+    enter: (dir: number) => ({
+      x: dir === 0 ? -400 : dir === 1 ? 400 : 0,
+      y: dir === 2 ? -400 : dir === 3 ? 400 : 0,
+      opacity: 0,
+      scale: 0.3,
+      rotateZ: dir === 0 ? -15 : dir === 1 ? 15 : 0,
+      filter: 'blur(10px)'
+    }),
+    center: {
+      x: 0,
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      rotateZ: 0,
+      filter: 'blur(0px)',
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 25,
+        mass: 1
+      }
+    },
+    exit: (dir: number) => ({
+      x: dir === 0 ? 400 : dir === 1 ? -400 : 0,
+      y: dir === 2 ? 400 : dir === 3 ? -400 : 0,
+      opacity: 0,
+      scale: 0.5,
+      rotateZ: dir === 0 ? 10 : dir === 1 ? -10 : 0,
+      filter: 'blur(10px)',
+      transition: { duration: 0.3, ease: "easeInOut" }
+    })
+  }
+
+  if (cards.length === 0) {
+    return (
+      <GlowCard>
         <div className="glass-card p-10 text-center">
           <Brain className="w-10 h-10 text-emerald-400 mx-auto mb-3 opacity-60" />
           <p className="text-muted-foreground mb-4 text-sm">No flashcards generated yet</p>
@@ -251,48 +294,152 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</> : <><Brain className="w-4 h-4" /> Generate Flashcards</>}
           </button>
         </div>
-        </GlowCard>
-      ) : (
-        <>
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-muted-foreground">{cards.length} cards · Click to flip</p>
-            <button onClick={generate} disabled={loading} className="btn-ghost text-xs">
-              <RotateCcw className="w-3 h-3" /> Regenerate
-            </button>
+      </GlowCard>
+    )
+  }
+
+  const currentCard = cards[currentIndex]
+
+  return (
+    <div className="space-y-6 md:space-y-10 py-2">
+      <div className="flex justify-between items-center px-2">
+        <div className="space-y-1">
+          <h3 className="text-xl font-bold gradient-text">Flashcard Study</h3>
+          <p className="text-sm text-muted-foreground">Card {currentIndex + 1} of {cards.length} · Tap to flip</p>
+        </div>
+        <button onClick={generate} disabled={loading} className="btn-ghost text-xs group">
+          <RotateCcw className="w-3 h-3 group-hover:rotate-180 transition-transform duration-700" /> Regenerate
+        </button>
+      </div>
+
+      <div className="relative h-[320px] md:h-[400px] w-full max-w-2xl mx-auto">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={currentIndex}
+            custom={direction}
+            variants={cardVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="w-full h-full cursor-pointer absolute inset-0"
+            onClick={() => setFlipped(!flipped)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ perspective: '1500px' }}
+          >
+            <motion.div
+              className="w-full h-full relative"
+              animate={{ rotateY: flipped ? 180 : 0 }}
+              transition={{ duration: 0.7, type: "spring", stiffness: 180, damping: 20 }}
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              {/* Front Side */}
+              <div 
+                className="absolute inset-0 glass-card p-6 md:p-12 flex flex-col justify-center items-center text-center shadow-[0_20px_50px_rgba(16,185,129,0.15)] border-white/5 active:cursor-grabbing"
+                style={{ backfaceVisibility: 'hidden' }}
+              >
+                <div className="absolute top-6 left-6 flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                   <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{currentCard.topic}</span>
+                </div>
+                <Brain className="w-16 h-16 text-emerald-500/5 absolute bottom-8 right-8 rotate-12" />
+                
+                <div className="w-full max-h-full overflow-y-auto px-4 custom-scrollbar">
+                   <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">{currentCard.front}</h2>
+                </div>
+
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">
+                   <span>Click to reveal</span>
+                   <RotateCcw className="w-3 h-3" />
+                </div>
+              </div>
+
+              {/* Back Side */}
+              <div 
+                className="absolute inset-0 glass-card p-6 md:p-12 flex flex-col justify-center items-center text-center bg-gradient-to-br from-primary/5 via-card/50 to-secondary/5 border-white/10"
+                style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+              >
+                <div className="absolute top-6 left-6 flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                   <span className="tag bg-amber-500/10 text-amber-500 border border-amber-500/20">Answer</span>
+                </div>
+                <Sparkles className="w-16 h-16 text-amber-500/5 absolute bottom-8 right-8 -rotate-12" />
+                
+                <div className="w-full max-h-full overflow-y-auto px-4 custom-scrollbar">
+                   <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed">{currentCard.back}</p>
+                </div>
+
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">
+                   <span>Reviewing Answer</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Side Navigation Buttons (Visible on Desktop) */}
+        <div className="hidden md:block absolute -left-20 top-1/2 -translate-y-1/2">
+          <button 
+            onClick={(e) => { e.stopPropagation(); navigate((currentIndex - 1 + cards.length) % cards.length); }}
+            className="w-12 h-12 rounded-full glass-card flex items-center justify-center hover:bg-primary/20 hover:border-primary/40 transition-all border-white/5 active:scale-90"
+          >
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+        </div>
+        <div className="hidden md:block absolute -right-20 top-1/2 -translate-y-1/2">
+          <button 
+            onClick={(e) => { e.stopPropagation(); navigate((currentIndex + 1) % cards.length); }}
+            className="w-12 h-12 rounded-full glass-card flex items-center justify-center hover:bg-primary/20 hover:border-primary/40 transition-all border-white/5 active:scale-90"
+          >
+            <ChevronRight className="w-6 h-6 text-white" />
+          </button>
+        </div>
+      </div>
+
+      {/* Progress & Lower Controls */}
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="space-y-2">
+           <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground font-bold px-1">
+              <span>Progress</span>
+              <span>{Math.round(((currentIndex + 1) / cards.length) * 100)}%</span>
+           </div>
+           <div className="w-full h-1.5 bg-muted/20 rounded-full overflow-hidden border border-white/5">
+            <motion.div 
+                className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-amber-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${((currentIndex + 1) / cards.length) * 100}%` }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            />
+           </div>
+        </div>
+        
+        <div className="flex justify-between items-center gap-4">
+          <button 
+            onClick={() => navigate((currentIndex - 1 + cards.length) % cards.length)}
+            className="btn-ghost flex-1 border border-white/5 bg-white/[0.02]"
+          >
+            <ChevronLeft className="w-4 h-4" /> Previous
+          </button>
+          <div className="flex gap-1">
+             {cards.map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-primary w-4' : 'bg-muted-foreground/30'}`}
+                />
+             ))}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {cards.map((card, i) => (
-              <GlowCard key={i}>
-                <motion.div onClick={() => setFlipped(f => ({ ...f, [i]: !f[i] }))}
-                  className="h-36 cursor-pointer"
-                  style={{ perspective: '1000px' }}
-                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <motion.div
-                    className="w-full h-full relative"
-                    animate={{ rotateY: flipped[i] ? 180 : 0 }}
-                    transition={{ duration: 0.4 }}
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-between"
-                      style={{ backfaceVisibility: 'hidden' }}>
-                      <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">{card.topic}</span>
-                      <p className="text-sm font-semibold text-white text-center">{card.front}</p>
-                      <p className="text-xs text-muted-foreground text-right">Tap to flip →</p>
-                    </div>
-                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-center items-center bg-gradient-to-br from-emerald-500/10 to-amber-600/10"
-                      style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-                      <p className="text-sm text-foreground text-center leading-relaxed">{card.back}</p>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              </GlowCard>
-            ))}
-          </div>
-        </>
-      )}
+          <button 
+            onClick={() => navigate((currentIndex + 1) % cards.length)}
+            className="btn-primary flex-1 shadow-primary/20"
+          >
+            Next Card <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
+
 
 function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: string, initialNodes: any[], initialEdges: any[], onUpdate: (nodes: Node[], edges: Edge[]) => void }) {
   const [nodes, setNodes] = useState<Node[]>([])
@@ -908,10 +1055,27 @@ export default function StudyViewPage() {
   }
 
   if (loading) return (
-    <div className="p-6 max-w-5xl mx-auto space-y-4">
-      <div className="skeleton h-10 w-64 rounded-xl" />
-      <div className="skeleton h-12 rounded-2xl" />
-      <div className="skeleton h-96 rounded-2xl" />
+    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center p-6 transition-all duration-700">
+      <div className="max-w-md w-full space-y-8 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 blur-[100px] rounded-full animate-pulse" />
+          <Loader2 className="w-16 h-16 text-emerald-400 animate-spin mx-auto relative z-10" />
+        </div>
+        <div className="space-y-3 relative z-10">
+          <h2 className="text-2xl font-bold text-white tracking-tight">AI is analyzing your document</h2>
+          <p className="text-emerald-400/60 text-sm font-medium animate-pulse">Extracting insights, flashcards, and more...</p>
+        </div>
+        <div className="flex gap-2 justify-center">
+          {[0, 1, 2].map(i => (
+            <motion.div
+              key={i}
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.2 }}
+              className="w-2 h-2 rounded-full bg-emerald-500/40"
+            />
+          ))}
+        </div>
+      </div>
     </div>
   )
 

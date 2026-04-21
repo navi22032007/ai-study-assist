@@ -47,7 +47,7 @@ export default function LiveStudyRoomPage() {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [connected, setConnected] = useState(false)
   const [hasJoined, setHasJoined] = useState(false)
-  const [userName, setUserName] = useState(user?.name || '')
+  const [userName, setUserName] = useState(user?.display_name || '')
   
   const [participants, setParticipants] = useState<Participant[]>([])
   const [roomMode, setRoomMode] = useState<'mindmap' | 'quiz' | 'discussion'>('mindmap')
@@ -141,7 +141,7 @@ export default function LiveStudyRoomPage() {
 
   // Effect to automatically reconnect if name is present
   useEffect(() => {
-    if (!socket && user?.name) {
+    if (!socket && user?.display_name) {
       connectToRoom()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -396,7 +396,7 @@ export default function LiveStudyRoomPage() {
                       <h2 className="text-2xl font-bold leading-relaxed relative z-10">{quizQuestion.q}</h2>
                     </GlowCard>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {quizQuestion.options.map((opt, i) => {
+                      {quizQuestion.options?.map((opt, i) => {
                         const isSelected = myAnswer === i
                         const isCorrect = isSelected && i === quizQuestion.answerIndex
                         const isWrong = isSelected && i !== quizQuestion.answerIndex

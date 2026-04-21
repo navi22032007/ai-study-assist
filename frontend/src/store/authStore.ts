@@ -6,6 +6,7 @@ interface User {
   email: string
   display_name?: string
   photo_url?: string
+  xp_points?: number
   study_streak?: number
 }
 

@@ -94,6 +94,29 @@ def extract_images_from_pdf(file_data: bytes) -> List[dict]:
     doc.close()
     return images_result
 
+def extract_text_from_docx(file_data: bytes) -> str:
+    """Extract text from DOCX bytes."""
+    try:
+        import docx
+        doc = docx.Document(io.BytesIO(file_data))
+        return "\n".join([para.text for para in doc.paragraphs])
+    except Exception as e:
+        raise ValueError(f"Failed to extract text from DOCX: {e}")
+
+def extract_text_from_pptx(file_data: bytes) -> str:
+    """Extract text from PPTX bytes."""
+    try:
+        import pptx
+        presentation = pptx.Presentation(io.BytesIO(file_data))
+        text_runs = []
+        for slide in presentation.slides:
+            for shape in slide.shapes:
+                if hasattr(shape, "text"):
+                    text_runs.append(shape.text)
+        return "\n".join(text_runs)
+    except Exception as e:
+        raise ValueError(f"Failed to extract text from PPTX: {e}")
+
 def extract_text_from_txt(file_data: bytes) -> str:
     """Extract text from TXT bytes."""
     try:
@@ -108,24 +131,25 @@ def extract_text(file_data: bytes, file_type: str) -> str:
         return text
     elif file_type in ["text/plain", "text/txt"]:
         return extract_text_from_txt(file_data)
+    elif "wordprocessingml.document" in file_type or file_type == "application/msword":
+        return extract_text_from_docx(file_data)
+    elif "presentationml.presentation" in file_type or file_type == "application/vnd.ms-powerpoint":
+        return extract_text_from_pptx(file_data)
     else:
-        raise ValueError(f"Unsupported file type: {file_type}")
+        # Fallback to standard check or raise
+        return extract_text_from_txt(file_data)
 
 def validate_file(file_data: bytes, filename: str, content_type: str) -> Tuple[bool, str]:
     """Validate uploaded file. Returns (is_valid, error_message)."""
-    MAX_SIZE = 10 * 1024 * 1024  # 10MB
-    ALLOWED_TYPES = ["application/pdf", "text/plain"]
-    ALLOWED_EXTENSIONS = [".pdf", ".txt"]
+    MAX_SIZE = 50 * 1024 * 1024  # 50MB
+    ALLOWED_EXTENSIONS = [".pdf", ".txt", ".docx", ".pptx", ".doc", ".ppt"]
     
     if len(file_data) > MAX_SIZE:
-        return False, f"File size exceeds 10MB limit ({len(file_data) / 1024 / 1024:.1f}MB)"
+        return False, f"File size exceeds 50MB limit ({len(file_data) / 1024 / 1024:.1f}MB)"
     
     ext = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
     if ext not in ALLOWED_EXTENSIONS:
-        return False, f"Unsupported file type. Only PDF and TXT files are allowed."
-    
-    if content_type not in ALLOWED_TYPES and not content_type.startswith("text/"):
-        return False, f"Invalid content type: {content_type}"
+        return False, f"Unsupported file type. Allowed: PDF, TXT, DOCX, PPTX."
     
     return True, ""
 

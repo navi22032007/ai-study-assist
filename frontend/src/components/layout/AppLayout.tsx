@@ -2,24 +2,28 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import {
-  LayoutDashboard, Upload, BarChart3, Library, User,
-  LogOut, Menu, X, GraduationCap, Flame, ChevronRight
+  LayoutDashboard, Upload, BarChart3, Library, User, Users,
+  LogOut, Menu, X, GraduationCap, Flame, ChevronRight,
+  Focus, Zap
 } from 'lucide-react'
 import { signOutUser } from '../../lib/firebase'
 import { useAuthStore } from '../../store/authStore'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import OnboardingTutorial from './OnboardingTutorial'
+import { FocusMode } from '@/components/ui/focus-mode'
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/upload', icon: Upload, label: 'Upload' },
   { to: '/library', icon: Library, label: 'Library' },
+  { to: '/live-rooms', icon: Users, label: 'Live Rooms' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/profile', icon: User, label: 'Profile' },
 ]
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [focusModeActive, setFocusModeActive] = useState(false)
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -81,14 +85,20 @@ export default function AppLayout() {
           ))}
         </nav>
 
-        {/* User & Streak */}
+        {/* User & Streak & XP */}
         <div className="p-3 border-t border-border/50 space-y-2">
-          {user?.study_streak !== undefined && user.study_streak > 0 && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
-              <Flame className="w-4 h-4 text-amber-400" />
-              <span className="text-xs text-amber-400 font-medium">{user.study_streak} day streak!</span>
+          <div className="flex gap-2">
+            {user?.study_streak !== undefined && user.study_streak > 0 && (
+              <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <Flame className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-[10px] text-amber-400 font-bold whitespace-nowrap">{user.study_streak} Days</span>
+              </div>
+            )}
+            <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20">
+              <Zap className="w-3.5 h-3.5 text-primary" />
+              <span className="text-[10px] text-primary font-bold whitespace-nowrap">{user?.xp_points ?? 0} XP</span>
             </div>
-          )}
+          </div>
           <div className="flex items-center gap-3 px-3 py-2">
             {user?.photo_url ? (
               <img src={user.photo_url} alt="avatar" className="w-8 h-8 rounded-full ring-2 ring-border" />
@@ -99,7 +109,7 @@ export default function AppLayout() {
             )}
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-foreground truncate">{user?.display_name || 'User'}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
             </div>
             <button onClick={handleLogout} className="p-1.5 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors">
               <LogOut className="w-3.5 h-3.5" />
@@ -163,6 +173,23 @@ export default function AppLayout() {
         </main>
       </div>
       <OnboardingTutorial />
+
+      {/* Focus Mode Floating Button */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setFocusModeActive(true)}
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/20 flex items-center justify-center z-40 border-4 border-background"
+        title="Enter Focus Mode"
+      >
+        <Focus className="w-7 h-7" />
+      </motion.button>
+
+      <AnimatePresence>
+        {focusModeActive && (
+          <FocusMode onClose={() => setFocusModeActive(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

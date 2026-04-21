@@ -36,6 +36,14 @@ app.add_middleware(
 app.add_middleware(RateLimiterMiddleware)
 app.add_middleware(AuthMiddleware)
 
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    # Enable popups to work with cross-origin isolation if needed
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
+    return response
+
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 app.include_router(ai_features.router, prefix="/api/ai", tags=["AI Features"])

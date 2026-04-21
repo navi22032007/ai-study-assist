@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, Trophy, Target, TrendingUp, BookOpen } from 'lucide-react'
+import { BarChart3, Trophy, Target, TrendingUp, BookOpen, Loader2 } from 'lucide-react'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { GlowCard } from '@/components/ui/spotlight-card'
 import {
@@ -21,12 +21,17 @@ export default function AnalyticsPage() {
   }, [])
 
   if (loading) return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="skeleton h-10 w-56 rounded-xl" />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}
+    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center p-6 transition-all duration-700">
+      <div className="max-w-md w-full space-y-8 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 blur-[100px] rounded-full animate-pulse" />
+          <Loader2 className="w-16 h-16 text-emerald-400 animate-spin mx-auto relative z-10" />
+        </div>
+        <div className="space-y-3 relative z-10">
+          <h2 className="text-2xl font-bold text-white tracking-tight">Analyzing Your Progress</h2>
+          <p className="text-emerald-400/60 text-sm font-medium animate-pulse">Syncing metrics and study insights...</p>
+        </div>
       </div>
-      <div className="skeleton h-64 rounded-2xl" />
     </div>
   )
 

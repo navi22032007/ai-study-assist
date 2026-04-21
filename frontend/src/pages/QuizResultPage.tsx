@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Trophy, CheckCircle, XCircle, Clock, Target, BookOpen, ChevronDown, ChevronUp } from 'lucide-react'
+import { Trophy, CheckCircle, XCircle, Clock, Target, BookOpen, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { getQuizAttempt } from '../lib/api'
 import { QuizResult } from '../types'
@@ -44,9 +44,17 @@ export default function QuizResultPage() {
   }, [attemptId])
 
   if (loading) return (
-    <div className="p-6 max-w-3xl mx-auto space-y-4">
-      <div className="skeleton h-60 rounded-2xl" />
-      <div className="skeleton h-40 rounded-2xl" />
+    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center p-6 transition-all duration-700">
+      <div className="max-w-md w-full space-y-8 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 blur-[100px] rounded-full animate-pulse" />
+          <Loader2 className="w-16 h-16 text-emerald-400 animate-spin mx-auto relative z-10" />
+        </div>
+        <div className="space-y-3 relative z-10">
+          <h2 className="text-2xl font-bold text-white tracking-tight">Calculating Results</h2>
+          <p className="text-emerald-400/60 text-sm font-medium animate-pulse">Reviewing your performance insights...</p>
+        </div>
+      </div>
     </div>
   )
 

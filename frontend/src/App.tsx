@@ -18,6 +18,7 @@ import AnalyticsPage from './pages/AnalyticsPage'
 import ProfilePage from './pages/ProfilePage'
 import SharedDocumentPage from './pages/SharedDocumentPage'
 import LiveStudyRoomPage from './pages/LiveStudyRoomPage'
+import LiveRoomsLobby from './pages/LiveRoomsLobby'
 import PublicCertificatePage from './pages/PublicCertificatePage'
 
 // Layout
@@ -69,6 +70,7 @@ function App() {
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/live-rooms" element={<LiveRoomsLobby />} />
           </Route>
         </Route>
 

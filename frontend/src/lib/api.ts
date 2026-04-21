@@ -33,6 +33,7 @@ export const verifyFirebaseToken = (firebase_token: string) =>
   api.post('/auth/verify', { firebase_token })
 
 export const getMe = () => api.get('/auth/me')
+export const reportViolation = () => api.post('/auth/violation')
 
 // ── Documents ─────────────────────────────────────────
 export const uploadDocument = (formData: FormData, onProgress?: (pct: number) => void) =>

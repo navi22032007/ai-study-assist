@@ -113,7 +113,7 @@ export const LiquidCursor = ({ size = 40, strong = false, className, ...props }:
             {...props}
             ref={cursorRef}
             className={cn(
-                "pointer-events-none fixed z-[999] rounded-full saturate-[180%] backdrop-blur-[2px]",
+                "pointer-events-none fixed z-[10001] rounded-full saturate-[180%] backdrop-blur-[2px]",
                 "dark:saturate-[160%] dark:backdrop-brightness-[0.8]",
                 className,
             )}
