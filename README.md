@@ -62,11 +62,20 @@
 | **Discussion Mode** | Chat with document anchoring (e.g., "Page 2, Para 3") |
 | **Room Management** | Host controls, participant list, auto-cleanup on empty |
 
+#### Security & Hardening
+| Feature | Description |
+|---|---|
+| **JWT Socket Auth** | Real-time rooms require JWT authentication for connection handshake |
+| **Magic Byte Verification** | Server-side binary header inspection for all file uploads (protects against renamed malicious files) |
+| **Security Headers** | Explicit CSP (Content Security Policy), HSTS, XSS protection, and anti-sniffing headers |
+| **BRAM (Input Sanitization)** | Integrated DOMPurify to sanitize AI-generated content and chat messages |
+| **IDOR Protection** | Strict document ownership checks on all API endpoints |
+
 ### Platform
 | Feature | Description |
 |---|---|
 | **Google OAuth** | Firebase-backed authentication with JWT backend protection |
-| **Document Upload** | PDF and TXT upload (10 MB max), drag-and-drop, progress bar, Firebase Storage |
+| **Document Upload** | Support for PDF, DOCX, PPTX, and TXT (50MB max), drag-and-drop, real-time progress bar |
 | **Document Library** | Folder system, search, inline rename/delete |
 | **Bookmarks** | Bookmark individual key points |
 | **Share Links** | Public 7-day expiring share links |
@@ -82,26 +91,26 @@
 
 ### Frontend
 - **React 18** + **Vite** + **TypeScript**
-- **Tailwind CSS** (dark theme design system)
-- **Radix UI** + **shadcn/ui** (accessible component primitives)
-- **Framer Motion** (page transitions, card animations)
-- **React Flow** (interactive mind maps)
-- **Recharts** (score history, topic bar charts, result pie charts)
-- **Socket.IO Client** (real-time study rooms)
-- **Zustand** (auth state management)
-- **Axios** (API client with interceptors)
-- **Firebase SDK** (Google OAuth)
-- **html2canvas** + **jsPDF** + **qrcode.react** (certificate PDF generation)
+- **Tailwind CSS** (Premium Cream & Sage design system)
+- **Radix UI** + **shadcn/ui** (Accessible primitives)
+- **Framer Motion** (Glassmorphism effects, page transitions)
+- **React Flow** (Interactive mind maps)
+- **Recharts** (Visual analytics)
+- **Socket.IO Client** (Authenticated WebSocket connections)
+- **Zustand** (Auth & theme state management)
+- **DOMPurify** (Content sanitization for AI output)
+- **Firebase SDK** (Google OAuth client-side)
 
 ### Backend
-- **Python 3.11** + **FastAPI**
+- **Python 3.11+** + **FastAPI**
 - **MongoDB** (Motor async driver)
-- **Firebase Admin SDK** (token verification + Storage)
-- **PyMuPDF** (PDF text and image extraction)
-- **Google Generative AI SDK** (Gemini 2.5 Flash Lite -- text + vision)
-- **python-socketio** (real-time WebSocket events)
-- **python-jose** + **PyJWT** (JWT generation/verification)
-- **SlowAPI** (rate limiting)
+- **Firebase Admin SDK** (Auth verification + Storage)
+- **PyMuPDF** + **python-docx** + **python-pptx** (Multi-format text extraction)
+- **Google Generative AI SDK** (Gemini 1.5 Flash -- Text & Vision)
+- **python-socketio** (Real-time events with JWT verification)
+- **PyJWT** (Secure token handling)
+- **SlowAPI** (Rate limiting per user)
+- **isomorphic-dompurify** (Backend sanitization capability)
 
 ---
 
