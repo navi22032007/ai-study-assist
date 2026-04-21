@@ -76,31 +76,7 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Live Room Quick Action */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full"
-      >
-        <GlowCard>
-          <div className="glass-card p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gradient-to-r from-emerald-500/5 to-indigo-500/5 border-emerald-500/20">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <Users className="w-6 h-6 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-black flex items-center gap-2 uppercase tracking-wide">
-                  Live Study Rooms <span className="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-full animate-pulse">LIVE</span>
-                </h2>
-                <p className="text-sm text-muted-foreground">Collaborate with peers on mind maps and quiz battles.</p>
-              </div>
-            </div>
-            <Link to="/live-rooms" className="btn-primary whitespace-nowrap bg-indigo-500 hover:bg-indigo-600 border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-              <Sparkles className="w-4 h-4" /> Start Collaborating
-            </Link>
-          </div>
-        </GlowCard>
-      </motion.div>
+
 
       {/* Stat Cards */}
       {loading ? (

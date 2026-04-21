@@ -1,15 +1,37 @@
 import socketio
+import jwt
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Create a Socket.IO server instance
-sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
+# In production, restrict origins to your frontend URL
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins=ALLOWED_ORIGINS)
 
 # Keep track of rooms and their states
 # In a production app, use Redis for this
 room_states = {}
 
 @sio.event
-async def connect(sid, environ):
-    print(f"Client connected: {sid}")
+async def connect(sid, environ, auth=None):
+    if not auth or 'token' not in auth:
+        print(f"[SOCKET] Connection rejected: No token provided ({sid})")
+        return False # Disconnect
+    
+    token = auth['token']
+    try:
+        # Verify JWT
+        payload = jwt.decode(
+            token,
+            os.getenv("JWT_SECRET", "your-secret-key"),
+            algorithms=["HS256"]
+        )
+        print(f"[SOCKET] Client connected and verified: {sid} (User: {payload.get('uid')})")
+    except Exception as e:
+        print(f"[SOCKET] Connection rejected: Invalid token - {e} ({sid})")
+        return False
 
 @sio.event
 async def disconnect(sid):

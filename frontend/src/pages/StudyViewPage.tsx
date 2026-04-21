@@ -10,7 +10,7 @@ import { AnimatedGroup } from '@/components/ui/animated-group'
 import { GlowCard } from '@/components/ui/spotlight-card'
 import ReactFlow, { Background, Controls, Node, Edge } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { 
+import {
   getDocument, generateSummary, generateKeyPoints, generateFlashcards,
   generateELI5, translateContent, chatWithDocument, generateMindMap,
   generateQuiz, createShareLink, toggleBookmark, exportQuizCSV, deleteDocument, analyzeDiagrams
@@ -36,7 +36,7 @@ function SummaryTab({ docId, initialSummary, initialEli5, onUpdate }: { docId: s
       const text = res.data.summary
       setSummary(text)
       onUpdate({ summary: text })
-    } catch(e: any) {
+    } catch (e: any) {
       alert(e.response?.data?.detail || 'Failed to generate summary')
     } finally { setLoading(false) }
   }
@@ -48,8 +48,8 @@ function SummaryTab({ docId, initialSummary, initialEli5, onUpdate }: { docId: s
       const explanation = res.data.explanation
       setEli5(explanation)
       // Note: Backend doesn't persist ELI5 in DB, but we keep it in parent state for session persistence
-      onUpdate({ eli5: explanation } as any) 
-    } catch(e: any) {
+      onUpdate({ eli5: explanation } as any)
+    } catch (e: any) {
       alert(e.response?.data?.detail || 'Failed')
     } finally { setEli5Loading(false) }
   }
@@ -60,7 +60,7 @@ function SummaryTab({ docId, initialSummary, initialEli5, onUpdate }: { docId: s
     try {
       const res = await translateContent(docId, transLang, 'summary')
       setTranslation(res.data.translated_content)
-    } catch(e: any) {
+    } catch (e: any) {
       alert(e.response?.data?.detail || 'Translation failed')
     } finally { setTransLoading(false) }
   }
@@ -86,62 +86,62 @@ function SummaryTab({ docId, initialSummary, initialEli5, onUpdate }: { docId: s
       ) : (
         <div className="space-y-4">
           <GlowCard>
-          <div className="glass-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">AI Summary</h3>
-              <div className="flex gap-2">
-                <button onClick={copy} className="btn-ghost text-xs px-2 py-1">
-                  {copied ? <><Check className="w-3 h-3 text-emerald-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
-                </button>
-                <button onClick={generate} disabled={loading} className="btn-ghost text-xs px-2 py-1">
-                  <RotateCcw className="w-3 h-3" /> Regenerate
-                </button>
+            <div className="glass-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">AI Summary</h3>
+                <div className="flex gap-2">
+                  <button onClick={copy} className="btn-ghost text-xs px-2 py-1">
+                    {copied ? <><Check className="w-3 h-3 text-emerald-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                  </button>
+                  <button onClick={generate} disabled={loading} className="btn-ghost text-xs px-2 py-1">
+                    <RotateCcw className="w-3 h-3" /> Regenerate
+                  </button>
+                </div>
               </div>
+              <p className="text-sm text-foreground leading-relaxed">{summary}</p>
+              <p className="text-xs text-muted-foreground mt-3">{summary.split(' ').length} words</p>
             </div>
-            <p className="text-sm text-foreground leading-relaxed">{summary}</p>
-            <p className="text-xs text-muted-foreground mt-3">{summary.split(' ').length} words</p>
-          </div>
           </GlowCard>
 
           {/* ELI5 */}
           <GlowCard>
-          <div className="glass-card p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-400" />
-                <h3 className="font-medium text-sm">ELI5 Mode</h3>
+            <div className="glass-card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  <h3 className="font-medium text-sm">ELI5 Mode</h3>
+                </div>
+                <button onClick={handleELI5} disabled={eli5Loading} className="btn-ghost text-xs px-2 py-1">
+                  {eli5Loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Explain Simply'}
+                </button>
               </div>
-              <button onClick={handleELI5} disabled={eli5Loading} className="btn-ghost text-xs px-2 py-1">
-                {eli5Loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Explain Simply'}
-              </button>
+              {eli5 && <p className="text-sm text-foreground leading-relaxed">{eli5}</p>}
             </div>
-            {eli5 && <p className="text-sm text-foreground leading-relaxed">{eli5}</p>}
-          </div>
           </GlowCard>
 
           {/* Translation */}
           <GlowCard>
-          <div className="glass-card p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Globe className="w-4 h-4 text-amber-400" />
-              <h3 className="font-medium text-sm">Translate</h3>
+            <div className="glass-card p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Globe className="w-4 h-4 text-amber-400" />
+                <h3 className="font-medium text-sm">Translate</h3>
+              </div>
+              <div className="flex gap-2">
+                <select
+                  className="input-field flex-1"
+                  value={transLang}
+                  onChange={(e) => setTransLang(e.target.value)}
+                >
+                  {['Spanish', 'French', 'German', 'Hindi', 'Tamil', 'Japanese', 'Chinese', 'Arabic', 'Portuguese', 'Russian'].map(l => (
+                    <option key={l}>{l}</option>
+                  ))}
+                </select>
+                <button onClick={handleTranslate} disabled={transLoading} className="btn-secondary whitespace-nowrap">
+                  {transLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Languages className="w-4 h-4" /> Translate</>}
+                </button>
+              </div>
+              {translation && <div className="mt-3 p-4 bg-muted/40 rounded-xl text-sm leading-relaxed">{translation}</div>}
             </div>
-            <div className="flex gap-2">
-              <select
-                className="input-field flex-1"
-                value={transLang}
-                onChange={(e) => setTransLang(e.target.value)}
-              >
-                {['Spanish', 'French', 'German', 'Hindi', 'Tamil', 'Japanese', 'Chinese', 'Arabic', 'Portuguese', 'Russian'].map(l => (
-                  <option key={l}>{l}</option>
-                ))}
-              </select>
-              <button onClick={handleTranslate} disabled={transLoading} className="btn-secondary whitespace-nowrap">
-                {transLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Languages className="w-4 h-4" /> Translate</>}
-              </button>
-            </div>
-            {translation && <div className="mt-3 p-4 bg-muted/40 rounded-xl text-sm leading-relaxed">{translation}</div>}
-          </div>
           </GlowCard>
         </div>
       )}
@@ -160,7 +160,7 @@ function KeyPointsTab({ docId, initialPoints, onUpdate }: { docId: string, initi
       const points = res.data.key_points
       setKeyPoints(points)
       onUpdate(points)
-    } catch(e: any) {
+    } catch (e: any) {
       alert(e.response?.data?.detail || 'Failed')
     } finally { setLoading(false) }
   }
@@ -220,20 +220,21 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
   const [cards, setCards] = useState<Flashcard[]>(initialCards)
   const [loading, setLoading] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [flipped, setFlipped] = useState(false)
+  const [flipped, setFlipped] = useState<Record<number, boolean>>({})
   const [count, setCount] = useState(10)
-  const [direction, setDirection] = useState(0) // 0: left, 1: right, 2: top, 3: bottom
+  const [direction, setDirection] = useState(0)
+
 
   const generate = async () => {
     setLoading(true)
-    setFlipped(false)
+    setFlipped({})
     setCurrentIndex(0)
     try {
       const res = await generateFlashcards(docId, count)
       const newCards = res.data.flashcards
       setCards(newCards)
       onUpdate(newCards)
-    } catch(e: any) {
+    } catch (e: any) {
       alert(e.response?.data?.detail || 'Failed')
     } finally { setLoading(false) }
   }
@@ -242,7 +243,8 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
     // Random direction for the next card to pop up from
     setDirection(Math.floor(Math.random() * 4))
     setCurrentIndex(newIndex)
-    setFlipped(false)
+    // We don't reset flipped here if we want to remember it, but for focus mode usually we reset
+    setFlipped(prev => ({ ...prev, [newIndex]: false }))
   }
 
   const cardVariants = {
@@ -322,55 +324,55 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
             animate="center"
             exit="exit"
             className="w-full h-full cursor-pointer absolute inset-0"
-            onClick={() => setFlipped(!flipped)}
+            onClick={() => setFlipped(f => ({ ...f, [currentIndex]: !f[currentIndex] }))}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             style={{ perspective: '1500px' }}
           >
             <motion.div
               className="w-full h-full relative"
-              animate={{ rotateY: flipped ? 180 : 0 }}
+              animate={{ rotateY: flipped[currentIndex] ? 180 : 0 }}
               transition={{ duration: 0.7, type: "spring", stiffness: 180, damping: 20 }}
               style={{ transformStyle: 'preserve-3d' }}
             >
               {/* Front Side */}
-              <div 
+              <div
                 className="absolute inset-0 glass-card p-6 md:p-12 flex flex-col justify-center items-center text-center shadow-[0_20px_50px_rgba(16,185,129,0.15)] border-white/5 active:cursor-grabbing"
                 style={{ backfaceVisibility: 'hidden' }}
               >
                 <div className="absolute top-6 left-6 flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                   <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{currentCard.topic}</span>
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{currentCard.topic}</span>
                 </div>
                 <Brain className="w-16 h-16 text-emerald-500/5 absolute bottom-8 right-8 rotate-12" />
-                
+
                 <div className="w-full max-h-full overflow-y-auto px-4 custom-scrollbar">
-                   <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">{currentCard.front}</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">{currentCard.front}</h2>
                 </div>
 
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">
-                   <span>Click to reveal</span>
-                   <RotateCcw className="w-3 h-3" />
+                  <span>Click to reveal</span>
+                  <RotateCcw className="w-3 h-3" />
                 </div>
               </div>
 
               {/* Back Side */}
-              <div 
+              <div
                 className="absolute inset-0 glass-card p-6 md:p-12 flex flex-col justify-center items-center text-center bg-gradient-to-br from-primary/5 via-card/50 to-secondary/5 border-white/10"
                 style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
               >
                 <div className="absolute top-6 left-6 flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                   <span className="tag bg-amber-500/10 text-amber-500 border border-amber-500/20">Answer</span>
+                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="tag bg-amber-500/10 text-amber-500 border border-amber-500/20">Answer</span>
                 </div>
                 <Sparkles className="w-16 h-16 text-amber-500/5 absolute bottom-8 right-8 -rotate-12" />
-                
+
                 <div className="w-full max-h-full overflow-y-auto px-4 custom-scrollbar">
-                   <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed">{currentCard.back}</p>
+                  <p className="text-lg md:text-xl text-foreground font-semibold leading-relaxed">{currentCard.back}</p>
                 </div>
 
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">
-                   <span>Reviewing Answer</span>
+                  <span>Reviewing Answer</span>
                 </div>
               </div>
             </motion.div>
@@ -379,7 +381,7 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
 
         {/* Side Navigation Buttons (Visible on Desktop) */}
         <div className="hidden md:block absolute -left-20 top-1/2 -translate-y-1/2">
-          <button 
+          <button
             onClick={(e) => { e.stopPropagation(); navigate((currentIndex - 1 + cards.length) % cards.length); }}
             className="w-12 h-12 rounded-full glass-card flex items-center justify-center hover:bg-primary/20 hover:border-primary/40 transition-all border-white/5 active:scale-90"
           >
@@ -387,7 +389,7 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
           </button>
         </div>
         <div className="hidden md:block absolute -right-20 top-1/2 -translate-y-1/2">
-          <button 
+          <button
             onClick={(e) => { e.stopPropagation(); navigate((currentIndex + 1) % cards.length); }}
             className="w-12 h-12 rounded-full glass-card flex items-center justify-center hover:bg-primary/20 hover:border-primary/40 transition-all border-white/5 active:scale-90"
           >
@@ -399,80 +401,76 @@ function FlashcardsTab({ docId, initialCards, onUpdate }: { docId: string, initi
       {/* Progress & Lower Controls */}
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="space-y-2">
-           <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground font-bold px-1">
-              <span>Progress</span>
-              <span>{Math.round(((currentIndex + 1) / cards.length) * 100)}%</span>
-           </div>
-           <div className="w-full h-1.5 bg-muted/20 rounded-full overflow-hidden border border-white/5">
-            <motion.div 
-                className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-amber-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${((currentIndex + 1) / cards.length) * 100}%` }}
-                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground font-bold px-1">
+            <span>Progress</span>
+            <span>{Math.round(((currentIndex + 1) / cards.length) * 100)}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-muted/20 rounded-full overflow-hidden border border-white/5">
+            <motion.div
+              className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-amber-500"
+              initial={{ width: 0 }}
+              animate={{ width: `${((currentIndex + 1) / cards.length) * 100}%` }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
             />
-           </div>
+          </div>
         </div>
-        
+
         <div className="flex justify-between items-center gap-4">
-          <button 
+          <button
             onClick={() => navigate((currentIndex - 1 + cards.length) % cards.length)}
             className="btn-ghost flex-1 border border-white/5 bg-white/[0.02]"
           >
             <ChevronLeft className="w-4 h-4" /> Previous
           </button>
           <div className="flex gap-1">
-             {cards.map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-primary w-4' : 'bg-muted-foreground/30'}`}
-                />
-             ))}
-          </div>
-<<<<<<< HEAD
-          <button 
-            onClick={() => navigate((currentIndex + 1) % cards.length)}
-            className="btn-primary flex-1 shadow-primary/20"
-          >
-            Next Card <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-=======
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {cards.map((card, i) => (
-              <GlowCard key={i}>
-                <motion.div onClick={() => setFlipped(f => ({ ...f, [i]: !f[i] }))}
-                  className="h-36 cursor-pointer"
-                  style={{ perspective: '1000px' }}
-                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <motion.div
-                    className="w-full h-full relative"
-                    animate={{ rotateY: flipped[i] ? 180 : 0 }}
-                    transition={{ duration: 0.4 }}
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-between"
-                      style={{ backfaceVisibility: 'hidden' }}>
-                      <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">{card.topic}</span>
-                      <p className="text-sm font-semibold text-white text-center">{card.front}</p>
-                      <p className="text-xs text-muted-foreground text-right">Tap to flip →</p>
-                    </div>
-                    <div className="absolute inset-0 glass-card p-4 flex flex-col justify-center items-center bg-gradient-to-br from-emerald-500/10 to-amber-600/10"
-                      style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-                      <p className="text-sm text-foreground text-center leading-relaxed">{card.back}</p>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              </GlowCard>
+            {cards.map((_, i) => (
+              <div
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-primary w-4' : 'bg-muted-foreground/30'}`}
+              />
             ))}
           </div>
-        </>
-      )}
->>>>>>> b9f9796 (feat: implement frontend application structure with routing, layout, and core study pages)
+          <button
+            onClick={() => navigate((currentIndex + 1) % cards.length)}
+            className="btn-ghost flex-1 border border-white/5 bg-white/[0.02]"
+          >
+            Next <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+        
+        {/* Grid View of all cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12">
+          {cards.map((card, i) => (
+            <GlowCard key={i}>
+              <motion.div onClick={() => setFlipped(f => ({ ...f, [i]: !f[i] }))}
+                className="h-36 cursor-pointer"
+                style={{ perspective: '1000px' }}
+                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <motion.div
+                  className="w-full h-full relative"
+                  animate={{ rotateY: flipped[i] ? 180 : 0 }}
+                  transition={{ duration: 0.4 }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  <div className="absolute inset-0 glass-card p-4 flex flex-col justify-between"
+                    style={{ backfaceVisibility: 'hidden' }}>
+                    <span className="tag bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start">{card.topic}</span>
+                    <p className="text-sm font-semibold text-white text-center">{card.front}</p>
+                    <p className="text-xs text-muted-foreground text-right">Tap to flip →</p>
+                  </div>
+                  <div className="absolute inset-0 glass-card p-4 flex flex-col justify-center items-center bg-gradient-to-br from-emerald-500/10 to-amber-600/10"
+                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+                    <p className="text-sm text-foreground text-center leading-relaxed">{card.back}</p>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </GlowCard>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
-
 
 function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: string, initialNodes: any[], initialEdges: any[], onUpdate: (nodes: Node[], edges: Edge[]) => void }) {
   const [nodes, setNodes] = useState<Node[]>([])
@@ -497,7 +495,7 @@ function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: st
       position: n.position || positions[i],
       style: n.style || nodeTypeStyles[n.type] || nodeTypeStyles.subtopic,
     }))
-    
+
     const finalEdges = rawEdges.map((e: any) => ({
       id: e.id, source: e.source, target: e.target,
       style: { stroke: 'rgba(16,185,129,0.4)', strokeWidth: 2 },
@@ -523,7 +521,7 @@ function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: st
       setNodes(n)
       setEdges(e)
       onUpdate(n, e)
-    } catch(err: any) {
+    } catch (err: any) {
       alert(err.response?.data?.detail || 'Failed')
     } finally { setLoading(false) }
   }
@@ -542,12 +540,12 @@ function MindMapTab({ docId, initialNodes, initialEdges, onUpdate }: { docId: st
         </GlowCard>
       ) : (
         <GlowCard>
-        <div className="glass-card overflow-hidden" style={{ height: 500 }}>
-          <ReactFlow nodes={nodes} edges={edges} fitView>
-            <Background color="rgba(255,255,255,0.03)" gap={20} />
-            <Controls className="!bg-card !border-border" />
-          </ReactFlow>
-        </div>
+          <div className="glass-card overflow-hidden" style={{ height: 500 }}>
+            <ReactFlow nodes={nodes} edges={edges} fitView>
+              <Background color="rgba(255,255,255,0.03)" gap={20} />
+              <Controls className="!bg-card !border-border" />
+            </ReactFlow>
+          </div>
         </GlowCard>
       )}
     </div>
@@ -574,58 +572,57 @@ function ChatTab({ docId }: { docId: string }) {
     try {
       const res = await chatWithDocument(docId, userMsg.content, messages)
       setMessages(prev => [...prev, { role: 'assistant', content: res.data.response }])
-    } catch(e: any) {
+    } catch (e: any) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }])
     } finally { setLoading(false) }
   }
 
   return (
     <GlowCard>
-    <div className="glass-card flex flex-col" style={{ height: 500 }}>
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-            <MessageSquare className="w-10 h-10 mb-3 opacity-30" />
-            <p className="text-sm">Ask anything about your document</p>
-            <p className="text-xs mt-1">Answers are strictly grounded in document content</p>
-          </div>
-        )}
-        {messages.map((m, i) => (
-          <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-              m.role === 'user' 
-                ? 'bg-gradient-to-br from-emerald-500 to-amber-600 text-white rounded-br-sm' 
-                : 'bg-muted text-foreground rounded-bl-sm'
-            }`}>
-              {m.content}
+      <div className="glass-card flex flex-col" style={{ height: 500 }}>
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {messages.length === 0 && (
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+              <MessageSquare className="w-10 h-10 mb-3 opacity-30" />
+              <p className="text-sm">Ask anything about your document</p>
+              <p className="text-xs mt-1">Answers are strictly grounded in document content</p>
             </div>
-          </motion.div>
-        ))}
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-muted px-4 py-3 rounded-2xl rounded-bl-sm">
-              <div className="flex gap-1">
-                {[0,1,2].map(i => <div key={i} className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: `${i*0.15}s` }} />)}
+          )}
+          {messages.map((m, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
+              className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${m.role === 'user'
+                ? 'bg-gradient-to-br from-emerald-500 to-amber-600 text-white rounded-br-sm'
+                : 'bg-muted text-foreground rounded-bl-sm'
+                }`}>
+                {m.content}
+              </div>
+            </motion.div>
+          ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-muted px-4 py-3 rounded-2xl rounded-bl-sm">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map(i => <div key={i} className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        <div ref={el => { bottomRef.current = el }} />
+          )}
+          <div ref={el => { bottomRef.current = el }} />
+        </div>
+        <div className="border-t border-border/50 p-3 flex gap-2">
+          <input
+            className="input-field flex-1"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && send()}
+            placeholder="Ask about the document..."
+          />
+          <button onClick={send} disabled={loading || !input.trim()} className="btn-primary px-4">
+            <MessageSquare className="w-4 h-4" />
+          </button>
+        </div>
       </div>
-      <div className="border-t border-border/50 p-3 flex gap-2">
-        <input
-          className="input-field flex-1"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder="Ask about the document..."
-        />
-        <button onClick={send} disabled={loading || !input.trim()} className="btn-primary px-4">
-          <MessageSquare className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
     </GlowCard>
   )
 }
@@ -637,7 +634,7 @@ function VoiceTutorTab({ docId }: { docId: string }) {
   const [processing, setProcessing] = useState(false)
   const [transcriptItem, setTranscriptItem] = useState('')
   const bottomRef = useRef<HTMLDivElement | null>(null)
-  
+
   const recognitionRef = useRef<any>(null)
   const synthRef = useRef<SpeechSynthesis | null>(null)
 
@@ -694,7 +691,7 @@ function VoiceTutorTab({ docId }: { docId: string }) {
 
     recognitionRef.current.onerror = () => setIsListening(false)
     recognitionRef.current.onend = () => setIsListening(false)
-    
+
     recognitionRef.current.start()
     setIsListening(true)
   }
@@ -703,7 +700,7 @@ function VoiceTutorTab({ docId }: { docId: string }) {
     recognitionRef.current?.stop()
     setIsListening(false)
     setTranscriptItem('')
-    
+
     const userMsg: ChatMessage = { role: 'user', content: text }
     setMessages(prev => [...prev, userMsg])
     setProcessing(true)
@@ -713,7 +710,7 @@ function VoiceTutorTab({ docId }: { docId: string }) {
       const reply = res.data.response
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
       speakResponse(reply)
-    } catch(e: any) {
+    } catch (e: any) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Connection failed.' }])
     } finally {
       setProcessing(false)
@@ -724,11 +721,11 @@ function VoiceTutorTab({ docId }: { docId: string }) {
     if (!synthRef.current) return
     synthRef.current.cancel() // stop prev
     const utterance = new SpeechSynthesisUtterance(text)
-    
+
     const voices = synthRef.current.getVoices()
     const niceVoice = voices.find(v => v.name.includes('Google') || v.name.includes('Samantha') || v.lang === 'en-US')
     if (niceVoice) utterance.voice = niceVoice
-    
+
     utterance.rate = 0.95
     utterance.pitch = 1.05
 
@@ -745,19 +742,18 @@ function VoiceTutorTab({ docId }: { docId: string }) {
         <div className="w-full md:w-1/2 p-10 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border/50 relative bg-black/10">
           <div className="relative mb-8">
             {isListening && (
-               <div className="absolute inset-0 bg-emerald-500 rounded-full blur-[40px] opacity-40 animate-pulse" />
+              <div className="absolute inset-0 bg-emerald-500 rounded-full blur-[40px] opacity-40 animate-pulse" />
             )}
             {isSpeaking && (
-               <div className="absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-30 animate-pulse" />
+              <div className="absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-30 animate-pulse" />
             )}
-            
-            <button 
+
+            <button
               onClick={toggleListening}
-              className={`relative z-10 w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl border ${
-                isListening ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 scale-105' 
-                : isSpeaking ? 'bg-orange-500/20 border-orange-500 text-orange-400' 
-                : 'bg-card border-border hover:bg-muted text-muted-foreground hover:text-foreground'
-              }`}
+              className={`relative z-10 w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl border ${isListening ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 scale-105'
+                : isSpeaking ? 'bg-orange-500/20 border-orange-500 text-orange-400'
+                  : 'bg-card border-border hover:bg-muted text-muted-foreground hover:text-foreground'
+                }`}
             >
               {processing ? (
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -770,13 +766,13 @@ function VoiceTutorTab({ docId }: { docId: string }) {
               )}
             </button>
           </div>
-          
+
           <h3 className="text-xl font-bold mb-2">Voice AI Tutor</h3>
           <p className="text-sm text-muted-foreground text-center max-w-[250px]">
-            {processing ? 'Thinking about your question...' 
-            : isSpeaking ? 'Tutor is speaking...' 
-            : isListening ? 'Listening to you...' 
-            : 'Tap the microphone to ask a question out loud'}
+            {processing ? 'Thinking about your question...'
+              : isSpeaking ? 'Tutor is speaking...'
+                : isListening ? 'Listening to you...'
+                  : 'Tap the microphone to ask a question out loud'}
           </p>
 
           {isSpeaking && (
@@ -791,37 +787,36 @@ function VoiceTutorTab({ docId }: { docId: string }) {
             <h4 className="font-semibold text-sm flex items-center gap-2"><AudioLines className="w-4 h-4 text-emerald-400" /> Live Transcript</h4>
           </div>
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
-             {messages.length === 0 && !transcriptItem && (
-                <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30">
-                  <Mic className="w-12 h-12 mb-4 opacity-20" />
-                  <p className="text-sm">Speak to start the conversation</p>
-                </div>
-             )}
-             
-             {messages.map((m, i) => (
-               <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                 className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
-                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">{m.role === 'user' ? 'You' : 'AI Tutor'}</span>
-                 <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                   m.role === 'user' 
-                     ? 'bg-emerald-500/10 text-emerald-100 border border-emerald-500/20 rounded-tr-sm' 
-                     : 'bg-orange-500/10 text-orange-100 border border-orange-500/20 rounded-tl-sm'
-                 }`}>
-                   {m.content}
-                 </div>
-               </motion.div>
-             ))}
+            {messages.length === 0 && !transcriptItem && (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30">
+                <Mic className="w-12 h-12 mb-4 opacity-20" />
+                <p className="text-sm">Speak to start the conversation</p>
+              </div>
+            )}
 
-             {transcriptItem && (
-               <div className="flex flex-col items-end opacity-60">
-                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">Listening...</span>
-                 <div className="max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed bg-emerald-500/5 text-emerald-100/70 border border-emerald-500/10 rounded-tr-sm italic">
-                   {transcriptItem}
-                 </div>
-               </div>
-             )}
-             
-             <div ref={el => { bottomRef.current = el }} />
+            {messages.map((m, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
+                className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">{m.role === 'user' ? 'You' : 'AI Tutor'}</span>
+                <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${m.role === 'user'
+                  ? 'bg-emerald-500/10 text-emerald-100 border border-emerald-500/20 rounded-tr-sm'
+                  : 'bg-orange-500/10 text-orange-100 border border-orange-500/20 rounded-tl-sm'
+                  }`}>
+                  {m.content}
+                </div>
+              </motion.div>
+            ))}
+
+            {transcriptItem && (
+              <div className="flex flex-col items-end opacity-60">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 ml-1">Listening...</span>
+                <div className="max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed bg-emerald-500/5 text-emerald-100/70 border border-emerald-500/10 rounded-tr-sm italic">
+                  {transcriptItem}
+                </div>
+              </div>
+            )}
+
+            <div ref={el => { bottomRef.current = el }} />
           </div>
         </div>
       </div>
@@ -1154,11 +1149,10 @@ export default function StudyViewPage() {
           <button
             key={id}
             onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
-              activeTab === id
-                ? 'bg-card text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeTab === id
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
+              }`}
           >
             <Icon className="w-4 h-4" />
             {label}
@@ -1176,33 +1170,33 @@ export default function StudyViewPage() {
           transition={{ duration: 0.2 }}
         >
           {activeTab === 'summary' && (
-            <SummaryTab 
-              docId={documentId!} 
-              initialSummary={doc.summary || ''} 
+            <SummaryTab
+              docId={documentId!}
+              initialSummary={doc.summary || ''}
               initialEli5={(doc as any).eli5 || ''}
-              onUpdate={(data) => setDoc(prev => prev ? { ...prev, ...data } : prev)} 
+              onUpdate={(data) => setDoc(prev => prev ? { ...prev, ...data } : prev)}
             />
           )}
           {activeTab === 'keypoints' && (
-            <KeyPointsTab 
-              docId={documentId!} 
-              initialPoints={doc.key_points || []} 
-              onUpdate={(kp) => setDoc(prev => prev ? { ...prev, key_points: kp } : prev)} 
+            <KeyPointsTab
+              docId={documentId!}
+              initialPoints={doc.key_points || []}
+              onUpdate={(kp) => setDoc(prev => prev ? { ...prev, key_points: kp } : prev)}
             />
           )}
           {activeTab === 'flashcards' && (
-            <FlashcardsTab 
-              docId={documentId!} 
-              initialCards={doc.flashcards || []} 
-              onUpdate={(cards) => setDoc(prev => prev ? { ...prev, flashcards: cards } : prev)} 
+            <FlashcardsTab
+              docId={documentId!}
+              initialCards={doc.flashcards || []}
+              onUpdate={(cards) => setDoc(prev => prev ? { ...prev, flashcards: cards } : prev)}
             />
           )}
           {activeTab === 'mindmap' && (
-            <MindMapTab 
-              docId={documentId!} 
-              initialNodes={(doc.mind_map as any)?.nodes || []} 
-              initialEdges={(doc.mind_map as any)?.edges || []} 
-              onUpdate={(n, e) => setDoc(prev => prev ? { ...prev, mind_map: { nodes: n, edges: e } as any } : prev)} 
+            <MindMapTab
+              docId={documentId!}
+              initialNodes={(doc.mind_map as any)?.nodes || []}
+              initialEdges={(doc.mind_map as any)?.edges || []}
+              onUpdate={(n, e) => setDoc(prev => prev ? { ...prev, mind_map: { nodes: n, edges: e } as any } : prev)}
             />
           )}
           {activeTab === 'chat' && <ChatTab docId={documentId!} />}
@@ -1213,3 +1207,4 @@ export default function StudyViewPage() {
     </AnimatedGroup>
   )
 }
+

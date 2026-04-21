@@ -84,22 +84,27 @@ async def verify_token(request: TokenVerifyRequest):
         if isinstance(access_token, bytes):
             access_token = access_token.decode('utf-8')
         
-        return AuthResponse(
-            user=UserInfo(
-                uid=user_info["uid"],
-                email=user_info.get("email", ""),
-                display_name=user_info.get("display_name"),
-                photo_url=user_info.get("photo_url"),
-                xp_points=user_doc.get("xp_points", 0),
-                study_streak=user_doc.get("study_streak", 0)
-            ),
-            access_token=access_token
-        )
+        try:
+            return AuthResponse(
+                user=UserInfo(
+                    uid=user_info["uid"],
+                    email=user_info.get("email", ""),
+                    display_name=user_info.get("display_name", ""),
+                    photo_url=user_info.get("photo_url", ""),
+                    xp_points=user_doc.get("xp_points", 0),
+                    study_streak=user_doc.get("study_streak", 0)
+                ),
+                access_token=access_token
+            )
+        except Exception as pydantic_err:
+            print(f"[AUTH] Pydantic validation failed: {pydantic_err}")
+            raise pydantic_err
     except Exception as e:
-        print(f"[AUTH] Internal error during verification: {e}")
+        print(f"[AUTH] Internal error during verification: {str(e)}")
         import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        error_detail = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+        print(error_detail)
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}\n{error_detail}")
 
 @router.get("/me", response_model=UserInfo)
 async def get_me(request: Request):

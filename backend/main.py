@@ -39,9 +39,29 @@ app.add_middleware(AuthMiddleware)
 @app.middleware("http")
 async def add_security_headers(request, call_next):
     response = await call_next(request)
-    # Enable popups to work with cross-origin isolation if needed
+    # Security Headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    
+    # Enable popups to work with cross-origin isolation (required for SharedArrayBuffer)
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
     response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
+    
+    # Content Security Policy (Basic)
+    # We allow 'unsafe-inline' for styles/scripts temporarily to support common library patterns (like framer-motion/tailwind)
+    # but restrict sources to self and trusted domains.
+    csp = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: https://firebasestorage.googleapis.com https://lh3.googleusercontent.com; "
+        "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com;"
+    )
+    response.headers["Content-Security-Policy"] = csp
+    
     return response
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])

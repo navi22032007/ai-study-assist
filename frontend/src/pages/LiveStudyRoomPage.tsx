@@ -79,7 +79,11 @@ export default function LiveStudyRoomPage() {
     if (e) e.preventDefault()
     if (!userName.trim()) return
 
-    const newSocket = io(SOCKET_URL, { transports: ['websocket'] })
+    const { token } = useAuthStore.getState()
+    const newSocket = io(SOCKET_URL, { 
+      transports: ['websocket'],
+      auth: { token }
+    })
     
     newSocket.on('connect', () => {
       setConnected(true)

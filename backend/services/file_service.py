@@ -149,7 +149,23 @@ def validate_file(file_data: bytes, filename: str, content_type: str) -> Tuple[b
     
     ext = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
     if ext not in ALLOWED_EXTENSIONS:
-        return False, f"Unsupported file type. Allowed: PDF, TXT, DOCX, PPTX."
+        return False, f"Unsupported file extension ({ext}). Allowed: PDF, TXT, DOCX, PPTX."
+
+    # Basic Magic Byte verification for security
+    # PDF: %PDF-
+    if ext == ".pdf":
+        if not file_data.startswith(b"%PDF-"):
+            return False, "File content does not match PDF format (Invalid magic bytes)."
     
+    # DOCX/PPTX are ZIP files: PK\x03\x04
+    elif ext in [".docx", ".pptx"]:
+        if not file_data.startswith(b"PK\x03\x04"):
+            return False, "File content does not match expected Office format (Invalid magic bytes)."
+    
+    # Plain text should not have null bytes usually (very basic check)
+    elif ext == ".txt":
+        if b"\x00" in file_data[:1024]:
+             return False, "Text file appears to contain binary data."
+
     return True, ""
 

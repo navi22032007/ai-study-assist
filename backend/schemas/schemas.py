@@ -204,11 +204,11 @@ class TokenVerifyRequest(BaseModel):
 
 class UserInfo(BaseModel):
     uid: str
-    email: str
-    display_name: Optional[str] = None
-    photo_url: Optional[str] = None
-    xp_points: int = 0
-    study_streak: int = 0
+    email: Optional[str] = ""
+    display_name: Optional[str] = ""
+    photo_url: Optional[str] = ""
+    xp_points: Optional[int] = 0
+    study_streak: Optional[int] = 0
 
 class AuthResponse(BaseModel):
     user: UserInfo

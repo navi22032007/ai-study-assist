@@ -25,8 +25,8 @@ export default function UploadPage() {
     if (f.size > MAX_SIZE) return `File too large (${(f.size / 1024 / 1024).toFixed(1)}MB). Max is 50MB.`
     const allowedExtensions = /\.(pdf|txt|docx|pptx|doc|ppt)$/i;
     const allowedMimeTypes = [
-      'application/pdf', 
-      'text/plain', 
+      'application/pdf',
+      'text/plain',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       'application/msword',
@@ -90,76 +90,70 @@ export default function UploadPage() {
       <AnimatePresence mode="wait">
         {done ? (
           <GlowCard>
-          <motion.div
-            key="done"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-10 text-center"
-          >
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-emerald-400" />
-            </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">Upload Successful!</h2>
-            <p className="text-muted-foreground text-sm mb-6">Your document is ready for AI analysis.</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={() => navigate(`/study/${uploadedId}`)} className="btn-primary">
-                Start Studying <ArrowRight className="w-4 h-4" />
-              </button>
-              <button onClick={reset} className="btn-secondary">Upload Another</button>
-            </div>
-          </motion.div>
+            <motion.div
+              key="done"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-card p-10 text-center"
+            >
+              <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+                <Check className="w-8 h-8 text-emerald-400" />
+              </div>
+              <h2 className="text-xl font-bold text-foreground mb-2">Upload Successful!</h2>
+              <p className="text-muted-foreground text-sm mb-6">Your document is ready for AI analysis.</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onClick={() => navigate(`/study/${uploadedId}`)} className="btn-primary">
+                  Start Studying <ArrowRight className="w-4 h-4" />
+                </button>
+                <button onClick={reset} className="btn-secondary">Upload Another</button>
+              </div>
+            </motion.div>
           </GlowCard>
         ) : (
           <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
             {/* Drop zone */}
             <GlowCard>
-            <div
-              onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={onDrop}
-              onClick={() => !file && fileRef.current?.click()}
-              className={`glass-card p-10 text-center cursor-pointer transition-all duration-200 ${
-                dragging ? 'border-emerald-500/60 bg-emerald-500/5 scale-[1.01]' : 'hover:border-border hover:bg-muted/20'
-              } ${file ? 'cursor-default' : 'cursor-pointer'}`}
-            >
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf,.txt,.docx,.pptx,.doc,.ppt"
-                className="hidden"
-                onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-              />
-              {file ? (
-                <div className="space-y-3">
-<<<<<<< HEAD
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-                    <FileText className="w-7 h-7 text-primary" />
-=======
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
-                    <FileText className="w-7 h-7 text-emerald-400" />
->>>>>>> b9f9796 (feat: implement frontend application structure with routing, layout, and core study pages)
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={onDrop}
+                onClick={() => !file && fileRef.current?.click()}
+                className={`glass-card p-10 text-center cursor-pointer transition-all duration-200 ${dragging ? 'border-emerald-500/60 bg-emerald-500/5 scale-[1.01]' : 'hover:border-border hover:bg-muted/20'
+                  } ${file ? 'cursor-default' : 'cursor-pointer'}`}
+              >
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf,.txt,.docx,.pptx,.doc,.ppt"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+                />
+                {file ? (
+                  <div className="space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
+                      <FileText className="w-7 h-7 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">{file.name}</p>
+                      <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setFile(null); setTitle('') }}
+                      className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 mx-auto transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" /> Remove
+                    </button>
                   </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{file.name}</p>
-                    <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setFile(null); setTitle('') }}
-                    className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 mx-auto transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" /> Remove
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center mx-auto mb-4 transition-colors ${dragging ? 'border-emerald-500 bg-emerald-500/10' : 'border-border'}`}>
-                    <Upload className={`w-7 h-7 transition-colors ${dragging ? 'text-emerald-400' : 'text-muted-foreground'}`} />
-                  </div>
-                  <p className="font-semibold text-foreground mb-1">Drop your file here</p>
-                  <p className="text-sm text-muted-foreground">or click to browse · PDF, DOCX, PPTX, TXT · max 50MB</p>
-                </>
-              )}
-            </div>
+                ) : (
+                  <>
+                    <div className={`w-16 h-16 rounded-2xl border-2 border-dashed flex items-center justify-center mx-auto mb-4 transition-colors ${dragging ? 'border-emerald-500 bg-emerald-500/10' : 'border-border'}`}>
+                      <Upload className={`w-7 h-7 transition-colors ${dragging ? 'text-emerald-400' : 'text-muted-foreground'}`} />
+                    </div>
+                    <p className="font-semibold text-foreground mb-1">Drop your file here</p>
+                    <p className="text-sm text-muted-foreground">or click to browse · PDF, DOCX, PPTX, TXT · max 50MB</p>
+                  </>
+                )}
+              </div>
             </GlowCard>
 
             {/* Error */}
