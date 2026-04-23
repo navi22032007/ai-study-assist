@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { 
   Users, Sparkles, ArrowRight, Hash, 
   MessageSquare, BrainCircuit, Swords, Play,
-  Zap, Globe, Shield
+  Globe
 } from 'lucide-react'
 import { GlowCard } from '@/components/ui/spotlight-card'
 import { AnimatedGroup } from '@/components/ui/animated-group'
@@ -107,11 +107,6 @@ export default function LiveRoomsLobby() {
                 />
               </div>
 
-              <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 text-xs text-muted-foreground leading-relaxed flex gap-3">
-                <Shield className="w-8 h-8 text-muted-foreground/50 flex-shrink-0" />
-                No login required for peers. Just share the code and start collaborating on documents.
-              </div>
-
               <button 
                 type="submit"
                 disabled={!roomCode.trim()}
@@ -124,12 +119,7 @@ export default function LiveRoomsLobby() {
         </GlowCard>
       </div>
 
-      {/* Stats / Motivation */}
-      <div className="flex justify-center gap-12 text-center pb-8 border-b border-border/50">
-        <Stat icon={Users} val="250+" label="Active Today" />
-        <Stat icon={Zap} val="1.2k" label="Study Battles" />
-        <Stat icon={Globe} val="42" label   ="Countries" />
-      </div>
+
     </AnimatedGroup>
   )
 }
@@ -145,12 +135,4 @@ function FeatureItem({ icon: Icon, label }: { icon: any, label: string }) {
   )
 }
 
-function Stat({ icon: Icon, val, label }: { icon: any, val: string, label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <Icon className="w-5 h-5 text-muted-foreground/50" />
-      <div className="text-xl font-black">{val}</div>
-      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</div>
-    </div>
-  )
-}
+
