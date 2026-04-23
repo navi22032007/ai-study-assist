@@ -8,7 +8,7 @@ PyJWT
 pydantic
 pydantic-settings
 firebase-admin
-google-generativeai
+google-genai
 PyMuPDF
 python-dotenv
 slowapi
