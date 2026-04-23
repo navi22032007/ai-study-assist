@@ -16,3 +16,4 @@ httpx
 certifi
 python-docx
 python-pptx
+python-socketio[asgi]
