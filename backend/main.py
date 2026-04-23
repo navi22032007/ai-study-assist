@@ -56,12 +56,13 @@ async def add_security_headers(request, call_next):
     # but restrict sources to self and trusted domains.
     csp = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
         "font-src 'self' https://fonts.gstatic.com; "
-        "img-src 'self' data: https://firebasestorage.googleapis.com https://lh3.googleusercontent.com; "
+        "img-src 'self' data: https://firebasestorage.googleapis.com https://lh3.googleusercontent.com https://fastapi.tiangolo.com; "
         "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com;"
     )
+
     response.headers["Content-Security-Policy"] = csp
     
     return response
