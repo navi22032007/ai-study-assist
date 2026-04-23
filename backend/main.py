@@ -24,7 +24,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
-
+@app.get("/")
+def root():
+    return {"status": "backend alive"}
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(","),
