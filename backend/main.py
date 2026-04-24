@@ -39,6 +39,8 @@ def root():
 # CORSMiddleware must be the LAST one added.
 
 async def add_security_headers(request, call_next):
+    if request.method == "OPTIONS":
+        return await call_next(request)
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
@@ -67,7 +69,12 @@ app.add_middleware(BaseHTTPMiddleware, dispatch=add_security_headers)
 # CORSMiddleware is the OUTERMOST layer
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://.*\.netlify\.app|http://localhost:\d+|https://.*\.up\.railway\.app",
+    allow_origins=[
+        "https://study-ai-naveen.netlify.app",
+        "https://ai-study-assist-production.up.railway.app",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
