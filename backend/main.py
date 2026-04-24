@@ -38,9 +38,14 @@ def root():
 # To ensure CORS headers are added to ALL responses (including errors), 
 # CORSMiddleware must be the LAST one added.
 
+from starlette.responses import Response
+
 async def add_security_headers(request, call_next):
     if request.method == "OPTIONS":
-        return await call_next(request)
+        # Return explicit 200 for preflight instead of passing through
+        response = Response(status_code=200)
+        return response
+    
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
