@@ -88,8 +88,16 @@ app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 app.include_router(share.router, prefix="/share", tags=["Share"])
 app.include_router(certificates.router, prefix="/certificates", tags=["Certificates"])
 
-from sockets import socket_app
-app.mount("/socket.io", socket_app)
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "version": "1.0.0"}
+
+# Socket.IO — mount AFTER all routes, with FastAPI as fallback
+from sockets import socket_app
+import socketio
+
+combined_app = socketio.ASGIApp(
+    socketio_server=socket_app.engineio_app if hasattr(socket_app, 'engineio_app') else socket_app,
+    other_asgi_app=app,
+    socketio_path="socket.io"
+)
