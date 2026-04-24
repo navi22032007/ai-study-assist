@@ -22,6 +22,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # Allow public paths
         is_public = any(clean_path == p.rstrip("/") or clean_path.startswith(p) for p in PUBLIC_PATHS)
         
+        # Log for debugging (remove in production if too noisy)
+        print(f"[AUTH] Request: {request.method} {path} (Public: {is_public})")
+        
         if is_public or request.method == "OPTIONS":
             return await call_next(request)
         

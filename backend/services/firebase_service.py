@@ -20,13 +20,27 @@ def init_firebase():
 
     if cred_json:
         try:
-            cred_data = json.loads(cred_json)
-            # Fix escaped newlines in private key which is common in environment variables
+            # Handle double-encoded JSON or escaped strings from env vars
+            try:
+                cred_data = json.loads(cred_json)
+            except json.JSONDecodeError:
+                # If first parse fails, it might be an escaped string
+                import ast
+                cred_data = json.loads(ast.literal_eval(f'"{cred_json}"'))
+            
+            if isinstance(cred_data, str):
+                cred_data = json.loads(cred_data)
+                
+            # Fix escaped newlines in private key
             if isinstance(cred_data, dict) and "private_key" in cred_data:
                 cred_data["private_key"] = cred_data["private_key"].replace("\\n", "\n")
+                
             cred = credentials.Certificate(cred_data)
+            print("[OK] Firebase initialized from JSON env var")
         except Exception as e:
-            print(f"[ERROR] Failed to parse FIREBASE_CREDENTIALS_JSON: {e}")
+            print(f"[CRITICAL ERROR] Failed to parse FIREBASE_CREDENTIALS_JSON: {str(e)}")
+            # Log the first 20 chars of the string to help debug (DO NOT log private key)
+            print(f"DEBUG: cred_json starts with: {str(cred_json)[:30]}...")
             raise e
 
     elif cred_path:
