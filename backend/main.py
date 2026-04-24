@@ -55,7 +55,7 @@ async def add_security_headers(request, call_next):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https://firebasestorage.googleapis.com https://lh3.googleusercontent.com https://fastapi.tiangolo.com; "
-        "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com https://ai-study-assist-production.up.railway.app https://study-ai.up.railway.app;"
+        "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com https://study-ai.up.railway.app;"
     )
     response.headers["Content-Security-Policy"] = csp
     return response
@@ -71,7 +71,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://study-ai-naveen.netlify.app",
-        "https://ai-study-assist-production.up.railway.app",
+        "https://study-ai.up.railway.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173"
     ],
