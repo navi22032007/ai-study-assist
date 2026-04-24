@@ -32,14 +32,25 @@ def init_firebase():
                 
             # Fix escaped newlines in private key
             if isinstance(cred_data, dict) and "private_key" in cred_data:
-                cred_data["private_key"] = cred_data["private_key"].replace("\\n", "\n")
+                pk = cred_data["private_key"]
+                # Clean the private key: handle various escaping issues
+                pk = pk.replace("\\n", "\n").replace("\\\\n", "\n")
+                
+                # Log the header for debugging (safe, just the BEGIN part)
+                header_check = pk[:30].replace("\n", "[N]")
+                print(f"[DEBUG] Private Key Header: {header_check}")
+                
+                cred_data["private_key"] = pk
                 
             cred = credentials.Certificate(cred_data)
             print("[OK] Firebase initialized successfully from FIREBASE_CREDENTIALS_JSON")
         except Exception as e:
             print(f"[CRITICAL ERROR] Failed to parse FIREBASE_CREDENTIALS_JSON: {str(e)}")
-            # Log the first 20 chars of the string to help debug (DO NOT log private key)
-            print(f"DEBUG: cred_json starts with: {str(cred_json)[:30]}...")
+            # Log length and start/end to detect truncation or wrapping
+            if cred_json:
+                print(f"DEBUG: cred_json length: {len(cred_json)}")
+                print(f"DEBUG: cred_json start: {str(cred_json)[:30]}...")
+                print(f"DEBUG: cred_json end: {str(cred_json)[-30:]}...")
             raise e
 
     elif cred_path:
