@@ -55,7 +55,7 @@ async def add_security_headers(request, call_next):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https://firebasestorage.googleapis.com https://lh3.googleusercontent.com https://fastapi.tiangolo.com; "
-        "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com;"
+        "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com https://ai-study-assist-production.up.railway.app https://study-ai.up.railway.app;"
     )
     response.headers["Content-Security-Policy"] = csp
     return response
@@ -89,7 +89,7 @@ app.include_router(share.router, prefix="/share", tags=["Share"])
 app.include_router(certificates.router, prefix="/certificates", tags=["Certificates"])
 
 from sockets import socket_app
-app.mount("/", socket_app)
+app.mount("/ws", socket_app)
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "version": "1.0.0"}

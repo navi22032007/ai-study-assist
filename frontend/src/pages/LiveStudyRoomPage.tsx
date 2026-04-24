@@ -81,6 +81,7 @@ export default function LiveStudyRoomPage() {
 
     const { token } = useAuthStore.getState()
     const newSocket = io(SOCKET_URL, { 
+      path: '/ws/socket.io/',
       transports: ['websocket'],
       auth: { token }
     })
