@@ -40,7 +40,7 @@ def root():
 
 from starlette.responses import Response
 
-async def add_security_headers(request, call_next):
+#async def add_security_headers(request, call_next):
     if request.method == "OPTIONS":
         # Return explicit 200 for preflight instead of passing through
         response = Response(status_code=200)
