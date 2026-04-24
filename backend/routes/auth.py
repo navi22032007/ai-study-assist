@@ -17,7 +17,7 @@ def create_jwt_token(user_info: dict) -> str:
     }
     return jwt.encode(payload, os.getenv("JWT_SECRET", "your-secret-key"), algorithm="HS256")
 
-@router.post("/verify", response_model=AuthResponse)
+@router.post("/auth/verify", response_model=AuthResponse)
 async def verify_token(request: TokenVerifyRequest):
     """Verify Firebase token and return JWT."""
     try:
