@@ -20,14 +20,13 @@ def init_firebase():
 
     if cred_json:
         try:
-            # Handle double-encoded JSON or escaped strings from env vars
-            try:
-                cred_data = json.loads(cred_json)
-            except json.JSONDecodeError:
-                # If first parse fails, it might be an escaped string
-                import ast
-                cred_data = json.loads(ast.literal_eval(f'"{cred_json}"'))
+            # Handle possible double-quotes or escaping in environment variables
+            if cred_json.startswith('"') and cred_json.endswith('"'):
+                cred_json = json.loads(cred_json)
+                
+            cred_data = json.loads(cred_json)
             
+            # If still a string after loads (e.g. from Railway escaping)
             if isinstance(cred_data, str):
                 cred_data = json.loads(cred_data)
                 
@@ -36,7 +35,7 @@ def init_firebase():
                 cred_data["private_key"] = cred_data["private_key"].replace("\\n", "\n")
                 
             cred = credentials.Certificate(cred_data)
-            print("[OK] Firebase initialized from JSON env var")
+            print("[OK] Firebase initialized successfully from FIREBASE_CREDENTIALS_JSON")
         except Exception as e:
             print(f"[CRITICAL ERROR] Failed to parse FIREBASE_CREDENTIALS_JSON: {str(e)}")
             # Log the first 20 chars of the string to help debug (DO NOT log private key)

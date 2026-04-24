@@ -15,6 +15,11 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    try:
+        from services.firebase_service import init_firebase
+        init_firebase()
+    except Exception as e:
+        print(f"[CRITICAL] Firebase initialization failed on startup: {e}")
     yield
     await close_db()
 
