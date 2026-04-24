@@ -19,8 +19,15 @@ def init_firebase():
     cred_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
 
     if cred_json:
-        cred_data = json.loads(cred_json)
-        cred = credentials.Certificate(cred_data)
+        try:
+            cred_data = json.loads(cred_json)
+            # Fix escaped newlines in private key which is common in environment variables
+            if isinstance(cred_data, dict) and "private_key" in cred_data:
+                cred_data["private_key"] = cred_data["private_key"].replace("\\n", "\n")
+            cred = credentials.Certificate(cred_data)
+        except Exception as e:
+            print(f"[ERROR] Failed to parse FIREBASE_CREDENTIALS_JSON: {e}")
+            raise e
 
     elif cred_path:
         cred_path = Path(cred_path).resolve()

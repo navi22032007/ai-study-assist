@@ -62,7 +62,7 @@ app.add_middleware(BaseHTTPMiddleware, dispatch=add_security_headers)
 # CORSMiddleware is the OUTERMOST layer
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("ALLOWED_ORIGINS", "*").split(","),
+    allow_origin_regex=r"https://.*\.netlify\.app|http://localhost:\d+|https://.*\.up\.railway\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

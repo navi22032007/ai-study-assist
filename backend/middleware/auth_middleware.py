@@ -15,10 +15,14 @@ PUBLIC_PATHS = [
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        path = request.url.path
+        # Normalize path: remove double slashes and trailing slash for comparison
+        path = request.url.path.replace("//", "/")
+        clean_path = path.rstrip("/") if path != "/" else path
         
         # Allow public paths
-        if any(path.startswith(p) for p in PUBLIC_PATHS):
+        is_public = any(clean_path == p.rstrip("/") or clean_path.startswith(p) for p in PUBLIC_PATHS)
+        
+        if is_public or request.method == "OPTIONS":
             return await call_next(request)
         
         # For everything else, enforce auth (except OPTIONS)
