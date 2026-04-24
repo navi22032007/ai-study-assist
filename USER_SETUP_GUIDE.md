@@ -108,7 +108,7 @@ VITE_API_URL=/api
 
 ## 🚀 Step 4: Final Validation
 
-1.  **Backend Check:** Open `http://localhost:8000/api/health` in your browser. You should see `{"status": "healthy"}`.
+1.  **Backend Check:** Open `http://localhost:8000/health` in your browser. You should see `{"status": "healthy"}`.
 2.  **Frontend Check:** Open `http://localhost:5173`. The landing page should appear.
 3.  **Login Test:** Click "Get Started" and log in with Google. If successful, you will be redirected to the Dashboard.
 

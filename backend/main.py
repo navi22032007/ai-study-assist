@@ -67,16 +67,16 @@ async def add_security_headers(request, call_next):
     
     return response
 
-app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
-app.include_router(ai_features.router, prefix="/api/ai", tags=["AI Features"])
-app.include_router(quiz.router, prefix="/api/quiz", tags=["Quiz"])
-app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
-app.include_router(share.router, prefix="/api/share", tags=["Share"])
-app.include_router(certificates.router, prefix="/api/certificates", tags=["Certificates"])
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(documents.router, prefix="/documents", tags=["Documents"])
+app.include_router(ai_features.router, prefix="/ai", tags=["AI Features"])
+app.include_router(quiz.router, prefix="/quiz", tags=["Quiz"])
+app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
+app.include_router(share.router, prefix="/share", tags=["Share"])
+app.include_router(certificates.router, prefix="/certificates", tags=["Certificates"])
 
 from sockets import socket_app
 app.mount("/", socket_app)
-@app.get("/api/health")
+@app.get("/health")
 async def health_check():
     return {"status": "healthy", "version": "1.0.0"}

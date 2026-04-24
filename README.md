@@ -373,59 +373,59 @@ Access at **http://localhost:5173**
 ### Authentication
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/auth/verify` | Verify Firebase token, return JWT |
-| `GET` | `/api/auth/me` | Get current user info |
+| `POST` | `/auth/verify` | Verify Firebase token, return JWT |
+| `GET` | `/auth/me` | Get current user info |
 
 ### Documents
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/documents/upload` | Upload PDF/TXT (multipart/form-data) with automatic diagram extraction |
-| `GET` | `/api/documents/` | List user documents (filterable by folder, searchable) |
-| `GET` | `/api/documents/folders` | List user folders |
-| `GET` | `/api/documents/{id}` | Get document details |
-| `PATCH` | `/api/documents/{id}` | Update title/folder |
-| `DELETE` | `/api/documents/{id}` | Delete document and related quizzes |
-| `POST` | `/api/documents/{id}/bookmark-keypoint` | Toggle key point bookmark |
-| `GET` | `/api/documents/{id}/export/csv` | Export quiz as CSV |
+| `POST` | `/documents/upload` | Upload PDF/TXT (multipart/form-data) with automatic diagram extraction |
+| `GET` | `/documents/` | List user documents (filterable by folder, searchable) |
+| `GET` | `/documents/folders` | List user folders |
+| `GET` | `/documents/{id}` | Get document details |
+| `PATCH` | `/documents/{id}` | Update title/folder |
+| `DELETE` | `/documents/{id}` | Delete document and related quizzes |
+| `POST` | `/documents/{id}/bookmark-keypoint` | Toggle key point bookmark |
+| `GET` | `/documents/{id}/export/csv` | Export quiz as CSV |
 
 ### AI Features
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/ai/summary` | Generate a max 200-word summary |
-| `POST` | `/api/ai/key-points` | Extract key points with importance levels |
-| `POST` | `/api/ai/flashcards` | Generate flashcards (configurable count) |
-| `POST` | `/api/ai/eli5` | ELI5 explanation |
-| `POST` | `/api/ai/translate` | Translate summary/key-points to target language |
-| `POST` | `/api/ai/chat` | Chat with document (grounded conversation with history) |
-| `POST` | `/api/ai/mind-map` | Generate mind map nodes and edges |
-| `POST` | `/api/ai/analyze-diagrams` | On-demand diagram analysis via Gemini Vision |
+| `POST` | `/ai/summary` | Generate a max 200-word summary |
+| `POST` | `/ai/key-points` | Extract key points with importance levels |
+| `POST` | `/ai/flashcards` | Generate flashcards (configurable count) |
+| `POST` | `/ai/eli5` | ELI5 explanation |
+| `POST` | `/ai/translate` | Translate summary/key-points to target language |
+| `POST` | `/ai/chat` | Chat with document (grounded conversation with history) |
+| `POST` | `/ai/mind-map` | Generate mind map nodes and edges |
+| `POST` | `/ai/analyze-diagrams` | On-demand diagram analysis via Gemini Vision |
 
 ### Quiz
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/quiz/generate` | Generate quiz (MCQ, true/false, fill-blank; easy/medium/hard) |
-| `GET` | `/api/quiz/{id}` | Get quiz (answers hidden if unattempted) |
-| `POST` | `/api/quiz/submit` | Submit answers and get scored result with explanations |
-| `GET` | `/api/quiz/attempt/{id}` | Get attempt result with per-question explanations |
-| `GET` | `/api/quiz/history/all` | Full quiz history |
+| `POST` | `/quiz/generate` | Generate quiz (MCQ, true/false, fill-blank; easy/medium/hard) |
+| `GET` | `/quiz/{id}` | Get quiz (answers hidden if unattempted) |
+| `POST` | `/quiz/submit` | Submit answers and get scored result with explanations |
+| `GET` | `/quiz/attempt/{id}` | Get attempt result with per-question explanations |
+| `GET` | `/quiz/history/all` | Full quiz history |
 
 ### Analytics
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/analytics/dashboard` | Dashboard stats (scores, streaks, weak topics, topic performance) |
+| `GET` | `/analytics/dashboard` | Dashboard stats (scores, streaks, weak topics, topic performance) |
 
 ### Sharing
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/share/create` | Create 7-day share link |
-| `GET` | `/api/share/public/{token}` | Get shared document (no auth required) |
-| `DELETE` | `/api/share/{document_id}` | Revoke share link |
+| `POST` | `/share/create` | Create 7-day share link |
+| `GET` | `/share/public/{token}` | Get shared document (no auth required) |
+| `DELETE` | `/share/{document_id}` | Revoke share link |
 
 ### Certificates
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/certificates/me` | Get current user's certificates |
-| `GET` | `/api/certificates/public/{token}` | Verify a certificate (no auth, QR-scannable) |
+| `GET` | `/certificates/me` | Get current user's certificates |
+| `GET` | `/certificates/public/{token}` | Verify a certificate (no auth, QR-scannable) |
 
 ---
 
@@ -459,7 +459,7 @@ Study rooms use Socket.IO for real-time collaboration. Connect to the `/ws` name
 
 ### 1. Verify Firebase Token
 ```http
-POST /api/auth/verify
+POST /auth/verify
 Content-Type: application/json
 
 {
@@ -484,7 +484,7 @@ Content-Type: application/json
 
 ### 2. Upload Document
 ```http
-POST /api/documents/upload
+POST /documents/upload
 Authorization: Bearer <token>
 Content-Type: multipart/form-data
 
@@ -516,7 +516,7 @@ folder: "Physics"
 
 ### 3. Generate Summary
 ```http
-POST /api/ai/summary
+POST /ai/summary
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -538,7 +538,7 @@ Content-Type: application/json
 
 ### 4. Generate Quiz
 ```http
-POST /api/quiz/generate
+POST /quiz/generate
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -575,7 +575,7 @@ Content-Type: application/json
 
 ### 5. Submit Quiz
 ```http
-POST /api/quiz/submit
+POST /quiz/submit
 Authorization: Bearer <token>
 Content-Type: application/json
 

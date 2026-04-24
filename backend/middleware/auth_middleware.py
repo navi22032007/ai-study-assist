@@ -21,7 +21,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if any(path.startswith(p) for p in PUBLIC_PATHS):
             return await call_next(request)
         
-        if path.startswith("/api/") and request.method != "OPTIONS":
+        # For everything else, enforce auth (except OPTIONS)
+        if request.method != "OPTIONS":
             auth_header = request.headers.get("Authorization")
             if not auth_header or not auth_header.startswith("Bearer "):
                 return JSONResponse(

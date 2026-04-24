@@ -4,7 +4,7 @@ from starlette.responses import JSONResponse
 from datetime import datetime, timezone
 from database import get_db
 
-AI_PATHS = ["/api/ai/", "/api/quiz/generate"]
+AI_PATHS = ["/ai/", "/quiz/generate"]
 RATE_LIMIT = 20  # per hour
 
 class RateLimiterMiddleware(BaseHTTPMiddleware):

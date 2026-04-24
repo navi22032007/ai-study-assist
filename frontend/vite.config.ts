@@ -12,10 +12,14 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true,
-      },
+      '/auth': 'http://127.0.0.1:8000',
+      '/documents': 'http://127.0.0.1:8000',
+      '/ai': 'http://127.0.0.1:8000',
+      '/quiz': 'http://127.0.0.1:8000',
+      '/analytics': 'http://127.0.0.1:8000',
+      '/share': 'http://127.0.0.1:8000',
+      '/certificates': 'http://127.0.0.1:8000',
+      '/health': 'http://127.0.0.1:8000',
     },
   },
 })
