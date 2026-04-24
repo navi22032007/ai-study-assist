@@ -5,9 +5,9 @@ import jwt
 import os
 
 PUBLIC_PATHS = [
-    "/api/health",
-    "/api/auth/verify",
-    "/api/share/public/",
+    "/health",
+    "/auth/verify",
+    "/share/public/",
     "/docs",
     "/openapi.json",
     "/redoc",
