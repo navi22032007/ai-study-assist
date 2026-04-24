@@ -175,4 +175,4 @@ async def send_chat(sid, data):
         }
         await sio.emit('chat_received', chat_msg, room=room_id)
 
-socket_app = socketio.ASGIApp(sio)
+socket_app = socketio.ASGIApp(sio, other_asgi_app=None)

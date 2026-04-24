@@ -89,7 +89,7 @@ app.include_router(share.router, prefix="/share", tags=["Share"])
 app.include_router(certificates.router, prefix="/certificates", tags=["Certificates"])
 
 from sockets import socket_app
-app.mount("/ws", socket_app)
+app.mount("/socket.io", socket_app)
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "version": "1.0.0"}
